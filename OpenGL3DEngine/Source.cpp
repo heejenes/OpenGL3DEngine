@@ -39,7 +39,14 @@ int main(int argc, char** argv) {
 	vertexData.emplace_back(-.5f, -.5f, 0.f);
 	vertexData.emplace_back(0.f, .5f, 0.f);
 
-	LoadVertices(vertexData);
+	unsigned int VAO;
+	glGenVertexArrays(1, &VAO);
+	// 1. bind Vertex Array Object
+	glBindVertexArray(VAO);
+
+	// VBO (vertex buffer object) is of type GL_ARRAY_BUFFER
+	uint32_t VBO;
+	LoadVertices(vertexData, VBO);
 
 	unsigned int vertexShader;
 	const char* vertexShaderSource =
@@ -53,12 +60,12 @@ int main(int argc, char** argv) {
 
 	unsigned int fragmentShader;
 	const char* fragShaderSource =
-		"#version 330 core"
-		"out vec4 FragColor;"
-		"void main()"
-		"{"
-		"	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);"
-		"}";
+		"#version 330 core\n"
+		"out vec4 FragColor;\n"
+		"void main()\n"
+		"{\n"
+		"	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+		"}\0";
 	LoadFragShader(fragShaderSource, fragmentShader);
 
 	unsigned int shaderProgram;
@@ -74,15 +81,20 @@ int main(int argc, char** argv) {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
+
 	while (!glfwWindowShouldClose(window)) {
 		// input handling
 		processInput(window);
 
 		// rendering
-	
+		// 
 		// clears specified buffer with color specified in glClearColor(). 
 		// (options: GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_STENCIL_BUFFER_BIT)
 		glClear(GL_COLOR_BUFFER_BIT);
+		// draws vertices
+		glUseProgram(shaderProgram);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		// Swaps the front and back buffers. front buffer is the buffer 
 		// that is displayed, back buffer is the new frame being drawn 

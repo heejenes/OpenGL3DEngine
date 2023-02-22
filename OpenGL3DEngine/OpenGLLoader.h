@@ -61,10 +61,8 @@ static void LoadShaders(unsigned int& shaderProgram, unsigned int& vertexShader,
 	glDeleteShader(fragmentShader);
 }
 
-static void LoadVertices(const std::vector<Vertex>& vertexData) {
+static void LoadVertices(const std::vector<Vertex>& vertexData, uint32_t& VBO) {
 
-	// VBO (vertex buffer object) is of type GL_ARRAY_BUFFER
-	uint32_t VBO;
 	// creates a buffer objects in memory and assigns VBO to a buffer ID
 	// that can be used to access that object. The first parameter is for
 	// number of buffer items to create
@@ -79,37 +77,4 @@ static void LoadVertices(const std::vector<Vertex>& vertexData) {
 	// GL_STATIC_DRAW: the data is set only once and used many times.
 	// GL_DYNAMIC_DRAW: the data is changed a lot and used many times.
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData.data(), GL_STATIC_DRAW);
-}
-
-static DrawDetails UploadMesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t> element) {
-	if (vertices.empty() || element.empty()) {
-		throw ("empty vector");
-	}
-	// VBO: Vertex buffer objects: where the verticies are stored on the GPU
-	uint32_t VAO, VBO, EBO;
-
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex, Pos));
-	glEnableVertexAttribArray(0);
-
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, element.size() * sizeof(uint32_t), element.data(), GL_STATIC_DRAW);
-
-	glBindVertexArray(0);
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
-
-	return DrawDetails(VAO, element.size());
-}
-
-static void UnloadMesh(std::vector<DrawDetails>& details) {
-	for (auto& d : details) {
-		glDeleteBuffers(1, &d.vao);
-	}
 }
