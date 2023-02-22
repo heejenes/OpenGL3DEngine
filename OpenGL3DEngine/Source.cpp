@@ -35,10 +35,17 @@ int main(int argc, char** argv) {
 	// This is called "normalized device coordinates (NDC)"
 	std::vector<Vertex> vertexData;
 	// each line of code is a 3d point, the three lines make a triangle
+	vertexData.emplace_back(.5f, .5f, 0.f);
 	vertexData.emplace_back(.5f, -.5f, 0.f);
-	vertexData.emplace_back(-.5f, -.5f, 0.f);
-	vertexData.emplace_back(0.f, .5f, 0.f);
+	vertexData.emplace_back(-.5f, -.5f, 0.0f);
+	vertexData.emplace_back(-.5f, .5f, 0.f);
 
+	std::vector<unsigned int> indices{
+		0, 1, 3, 1, 2, 3
+	};
+
+	unsigned int EBO;
+	glGenBuffers(1, &EBO);
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
 	// 1. bind Vertex Array Object
@@ -47,6 +54,10 @@ int main(int argc, char** argv) {
 	// VBO (vertex buffer object) is of type GL_ARRAY_BUFFER
 	uint32_t VBO;
 	LoadVertices(vertexData, VBO);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+
 
 	unsigned int vertexShader;
 	const char* vertexShaderSource =
@@ -68,8 +79,10 @@ int main(int argc, char** argv) {
 		"}\0";
 	LoadFragShader(fragShaderSource, fragmentShader);
 
+
 	unsigned int shaderProgram;
 	LoadShaders(shaderProgram, vertexShader, fragmentShader);
+
 
 	// Tell OpenGL how we've organized our vertices data (Looks at vertices data from the GL_ARRAY_BUFFER VBO)
 	// Arg 1: which vertex attribute to configure ("location = 0" from vertexShaderSource)
@@ -80,7 +93,6 @@ int main(int argc, char** argv) {
 	// Arg 6: "offset of where the position data begins in buffer" learn more later.
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-
 
 	while (!glfwWindowShouldClose(window)) {
 		// input handling
@@ -93,8 +105,9 @@ int main(int argc, char** argv) {
 		glClear(GL_COLOR_BUFFER_BIT);
 		// draws vertices
 		glUseProgram(shaderProgram);
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(VAO); 
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
 
 		// Swaps the front and back buffers. front buffer is the buffer 
 		// that is displayed, back buffer is the new frame being drawn 
@@ -104,6 +117,11 @@ int main(int argc, char** argv) {
 		glfwPollEvents();
 
 	}
+
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+	glDeleteProgram(shaderProgram);
 
 	glfwTerminate();
 	return 0;

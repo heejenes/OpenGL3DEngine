@@ -76,5 +76,5 @@ static void LoadVertices(const std::vector<Vertex>& vertexData, uint32_t& VBO) {
 	// GL_STREAM_DRAW: the data is set only once and used by the GPU at most a few times.
 	// GL_STATIC_DRAW: the data is set only once and used many times.
 	// GL_DYNAMIC_DRAW: the data is changed a lot and used many times.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(Vertex), vertexData.data(), GL_STATIC_DRAW);
 }
