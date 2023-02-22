@@ -1,0 +1,3 @@
+C:\Users\turtl\source\repos\OpenGL3DEngine\OpenGL3DEngine\x64\Debug\OpenGL3DEngine.vcxproj.CopyComplete
+C:\Users\turtl\source\repos\OpenGL3DEngine\OpenGL3DEngine\x64\Debug\OpenGL3DEngine.exe
+C:\Users\turtl\source\repos\OpenGL3DEngine\OpenGL3DEngine\x64\Debug\glfw3.dll
