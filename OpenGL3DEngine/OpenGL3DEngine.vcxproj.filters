@@ -16,6 +16,12 @@
     <Filter Include="Header Files\Rendering">
       <UniqueIdentifier>{77e3cc5b-ce21-4db8-9271-ebe7d1940c1f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Shaders">
+      <UniqueIdentifier>{fdcd9b0d-f26a-4f51-bb42-ae5a0f86c8a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{4f69c3de-0406-4c20-bb49-5424959cb816}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
@@ -38,5 +44,16 @@
     <ClInclude Include="OpenGLLoader.h">
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files\Shaders</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vshader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="fshader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

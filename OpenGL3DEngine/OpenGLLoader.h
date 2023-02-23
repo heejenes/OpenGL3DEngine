@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "Vertex.h"
+#include "UtilityFunctions.h"
 
 static unsigned int LoadVertexShader(const char* vertexShaderSource) {
 	unsigned int vertexShader;
@@ -97,6 +98,9 @@ static void LoadVertices(const std::vector<Vertex>& vertexData, std::vector<unsi
 	// Arg 4: if we want data to be "normalized" (different from NDC, just ignore for now)
 	// Arg 5: stride (number of bits between vertices = 3*(size of float))
 	// Arg 6: "offset of where the position data begins in buffer" learn more later.
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	// color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 }

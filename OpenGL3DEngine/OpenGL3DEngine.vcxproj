@@ -146,8 +146,13 @@
     <ClInclude Include="Callbacks.h" />
     <ClInclude Include="OpenGLDraw.h" />
     <ClInclude Include="OpenGLLoader.h" />
+    <ClInclude Include="Shader.h" />
     <ClInclude Include="UtilityFunctions.h" />
     <ClInclude Include="Vertex.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="fshader.glsl" />
+    <None Include="vshader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

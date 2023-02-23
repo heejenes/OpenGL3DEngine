@@ -5,6 +5,7 @@
 #include "Vertex.h"
 #include "OpenGLLoader.h"
 #include "OpenGLDraw.h"
+#include "Shader.h"
 #include <vector>
 
 int main(int argc, char** argv) {
@@ -36,15 +37,15 @@ int main(int argc, char** argv) {
 	// This is called "normalized device coordinates (NDC)"
 	std::vector<Vertex> vertexData;
 	// each line of code is a 3d point, the three lines make a triangle
-	vertexData.emplace_back(.5f, .5f, 0.f);
-	vertexData.emplace_back(.5f, -.5f, 0.f);
-	vertexData.emplace_back(-.5f, -.5f, 0.0f);
-	vertexData.emplace_back(-.5f, .5f, 0.f);
-	vertexData.emplace_back(-.6f, -.6f, 0.0f);
-	vertexData.emplace_back(-.5f, -.4f, 0.0f);
+	vertexData.emplace_back(.5f, .5f, 0.f, 1.0f, 0.0f, 0.0f);
+	vertexData.emplace_back(.5f, -.5f, 0.f, 0.0f, 1.0f, 0.0f);
+	vertexData.emplace_back(-.5f, -.5f, 0.0f, 0.0f, 0.0f, 1.0f);
+	vertexData.emplace_back(-.5f, .5f, 0.f, 0.0f, 0.0f, 1.0f);
+	vertexData.emplace_back(-.6f, -.6f, 0.0f, 0.0f, 1.0f, 1.0f);
+	vertexData.emplace_back(-.5f, -.4f, 0.0f, 1.0f, 0.0f, 1.0f);
 
 	std::vector<unsigned int> indices{
-		0, 1, 3, 4, 2, 5
+		0, 1, 2, 3, 4, 5
 	};
 
 	// loads vertices
@@ -60,23 +61,7 @@ int main(int argc, char** argv) {
 	unsigned int EBO;
 	LoadVertices(vertexData, indices, VBO, VAO, EBO);
 
-	const char* vertexShaderSource =
-		"#version 330 core\n"
-		"layout (location = 0) in vec3 aPos;\n"
-		"void main()\n"
-		"{\n"
-		"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-		"}\0";
-	const char* fragShaderSource =
-		"#version 330 core\n"
-		"out vec4 FragColor;\n"
-		"void main()\n"
-		"{\n"
-		"	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-		"}\0";
-	unsigned int vertexShader = LoadVertexShader(vertexShaderSource);
-	unsigned int fragmentShader = LoadFragShader(fragShaderSource);
-	unsigned int shaderProgram = LoadShaders(vertexShader, fragmentShader);
+	Shader ourShader("vshader.glsl", "fshader.glsl");
 
 	while (!glfwWindowShouldClose(window)) {
 		// input handling
@@ -88,7 +73,7 @@ int main(int argc, char** argv) {
 		// (options: GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_STENCIL_BUFFER_BIT)
 		glClear(GL_COLOR_BUFFER_BIT);
 		// draws vertices
-		DrawVertices(shaderProgram, VAO, indices.size());
+		DrawVertices(ourShader, VAO, indices.size());
 
 		// Swaps the front and back buffers. front buffer is the buffer 
 		// that is displayed, back buffer is the new frame being drawn 
@@ -102,7 +87,6 @@ int main(int argc, char** argv) {
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
-	glDeleteProgram(shaderProgram);
 
 	glfwTerminate();
 	return 0;
