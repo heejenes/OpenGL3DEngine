@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef UTILITYFUNCTIONS_H
+#define UTILITYFUNCTIONS_H
+
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -39,4 +43,5 @@ static void writeLog(const char* msg) {
 #else
 static void writeLog(const char* msg) {
 }
+#endif
 #endif

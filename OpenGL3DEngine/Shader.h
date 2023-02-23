@@ -19,6 +19,9 @@ public:
     // constructor reads and builds the shader
     // file paths of vertex and frag shader
     Shader(const char* vertexPath, const char* fragmentPath) {
+        loadShader(vertexPath, fragmentPath);
+    }
+    void loadShader(const char* vertexPath, const char* fragmentPath) {
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
         std::string fragmentCode;

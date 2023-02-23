@@ -37,15 +37,16 @@ int main(int argc, char** argv) {
 	// This is called "normalized device coordinates (NDC)"
 	std::vector<Vertex> vertexData;
 	// each line of code is a 3d point, the three lines make a triangle
-	vertexData.emplace_back(.5f, .5f, 0.f, 1.0f, 0.0f, 0.0f);
+	vertexData.emplace_back(.0f, .5f, 0.f, 1.0f, 0.0f, 0.0f);
 	vertexData.emplace_back(.5f, -.5f, 0.f, 0.0f, 1.0f, 0.0f);
 	vertexData.emplace_back(-.5f, -.5f, 0.0f, 0.0f, 0.0f, 1.0f);
 	vertexData.emplace_back(-.5f, .5f, 0.f, 0.0f, 0.0f, 1.0f);
 	vertexData.emplace_back(-.6f, -.6f, 0.0f, 0.0f, 1.0f, 1.0f);
 	vertexData.emplace_back(-.5f, -.4f, 0.0f, 1.0f, 0.0f, 1.0f);
+	vertexData.emplace_back(-.8f, -.4f, 0.0f, 1.0f, 0.0f, 1.0f);
 
 	std::vector<unsigned int> indices{
-		0, 1, 2, 3, 4, 5
+		0, 1, 2, 3, 4, 5, 4, 5, 6
 	};
 
 	// loads vertices
@@ -66,6 +67,11 @@ int main(int argc, char** argv) {
 	while (!glfwWindowShouldClose(window)) {
 		// input handling
 		processInput(window);
+		// Update shaders when SPACE is pressed
+		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+			writeLog("RELOADING SHADER\n");
+			ourShader.loadShader("vshader.glsl", "fshader.glsl");
+		}
 
 		// rendering
 		// 

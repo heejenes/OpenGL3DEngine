@@ -1,10 +1,13 @@
 #pragma once
+
+#ifndef OPENGLLOADER_H
+#define OPENGLLOADER_H
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <string>
 #include <vector>
 #include "Vertex.h"
-#include "UtilityFunctions.h"
 
 static unsigned int LoadVertexShader(const char* vertexShaderSource) {
 	unsigned int vertexShader;
@@ -104,3 +107,5 @@ static void LoadVertices(const std::vector<Vertex>& vertexData, std::vector<unsi
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 }
+
+#endif

@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef OPENGLDRAW_H
+#define OPENGLDRAW_H
+
 #include "Shader.h"
 
 static void DrawVertices(Shader shader, unsigned int VAO, int indicesSize) {
@@ -8,3 +12,4 @@ static void DrawVertices(Shader shader, unsigned int VAO, int indicesSize) {
 	glBindVertexArray(0);
 	glBindVertexArray(1);
 }
+#endif
