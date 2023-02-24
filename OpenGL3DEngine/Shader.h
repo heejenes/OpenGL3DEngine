@@ -22,6 +22,8 @@ public:
         loadShader(vertexPath, fragmentPath);
     }
     void loadShader(const char* vertexPath, const char* fragmentPath) {
+        glEnable(GL_DEPTH_TEST);
+
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
         std::string fragmentCode;

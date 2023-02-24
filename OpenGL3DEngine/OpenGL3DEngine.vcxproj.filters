@@ -25,6 +25,12 @@
     <Filter Include="Header Files\Textures">
       <UniqueIdentifier>{d8eef92e-b61b-455f-849b-5fdba179b43f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{e83b92ab-daa2-4349-9a53-a4087866234a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Textures">
+      <UniqueIdentifier>{fe504d39-3fe6-4ea5-817d-0d5ad8e0d5ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
@@ -53,6 +59,9 @@
     <ClInclude Include="TextureLoader.h">
       <Filter>Header Files\Textures</Filter>
     </ClInclude>
+    <ClInclude Include="GLMUtilityFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vshader.glsl">
@@ -61,5 +70,10 @@
     <None Include="fshader.glsl">
       <Filter>Shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="container.jpg">
+      <Filter>Assets\Textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

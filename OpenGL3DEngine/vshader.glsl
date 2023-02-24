@@ -8,9 +8,13 @@ out vec3 ourColor; // output a color to the fragment shader
 out vec4 outPos;
 out vec2 TexCoord;
 
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
 void main()
 {
-    outPos = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    outPos = projection * view * model * vec4(aPos, 1.0);
     gl_Position = outPos;
     ourColor = vec3(1 * aColor.x, 1* aColor.y, 1 * aColor.z);
     TexCoord = aTexCoord;
