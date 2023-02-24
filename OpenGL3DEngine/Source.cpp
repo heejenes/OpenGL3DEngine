@@ -6,7 +6,6 @@
 #include "OpenGLLoader.h"
 #include "OpenGLDraw.h"
 #include "Shader.h"
-#include "TextureLoader.h"
 #include <vector>
 
 int main(int argc, char** argv) {
@@ -38,29 +37,17 @@ int main(int argc, char** argv) {
 	// This is called "normalized device coordinates (NDC)"
 	std::vector<Vertex> vertexData;
 	// each line of code is a 3d point, the three lines make a triangle
-
-	//vertexData.emplace_back(.0f, .5f, 0.f,		1.0f, 0.0f, 0.0f);
-	//vertexData.emplace_back(.5f, -.5f, 0.f,		0.0f, 1.0f, 0.0f);
-	//vertexData.emplace_back(-.5f, -.5f, 0.0f,	0.0f, 0.0f, 1.0f);
-	//vertexData.emplace_back(-.5f, .5f, 0.f,		0.0f, 0.0f, 1.0f);
-	//vertexData.emplace_back(-.6f, -.6f, 0.0f,	0.0f, 1.0f, 1.0f);
-	//vertexData.emplace_back(-.5f, -.4f, 0.0f,	1.0f, 0.0f, 1.0f);
-	//vertexData.emplace_back(-.8f, -.4f, 0.0f,	1.0f, 0.0f, 1.0f);
-	//
-	//std::vector<unsigned int> indices{
-	//0, 1, 2, 3, 4, 5, 4, 5, 6
-	//};
-
-	vertexData.emplace_back(0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-	vertexData.emplace_back(0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
-	vertexData.emplace_back(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
-	vertexData.emplace_back(-0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+	vertexData.emplace_back(.0f, .5f, 0.f, 1.0f, 0.0f, 0.0f);
+	vertexData.emplace_back(.5f, -.5f, 0.f, 0.0f, 1.0f, 0.0f);
+	vertexData.emplace_back(-.5f, -.5f, 0.0f, 0.0f, 0.0f, 1.0f);
+	vertexData.emplace_back(-.5f, .5f, 0.f, 0.0f, 0.0f, 1.0f);
+	vertexData.emplace_back(-.6f, -.6f, 0.0f, 0.0f, 1.0f, 1.0f);
+	vertexData.emplace_back(-.5f, -.4f, 0.0f, 1.0f, 0.0f, 1.0f);
+	vertexData.emplace_back(-.8f, -.4f, 0.0f, 1.0f, 0.0f, 1.0f);
 
 	std::vector<unsigned int> indices{
-		0, 1, 2, 0, 2, 3
+		0, 1, 2, 3, 4, 5, 4, 5, 6
 	};
-
-	unsigned int texture = LoadTexture("container.jpg");
 
 	// loads vertices
 	unsigned int VBO;
@@ -92,7 +79,7 @@ int main(int argc, char** argv) {
 		// (options: GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_STENCIL_BUFFER_BIT)
 		glClear(GL_COLOR_BUFFER_BIT);
 		// draws vertices
-		DrawVertices(ourShader, texture, VAO, indices.size());
+		DrawVertices(ourShader, VAO, indices.size());
 
 		// Swaps the front and back buffers. front buffer is the buffer 
 		// that is displayed, back buffer is the new frame being drawn 
