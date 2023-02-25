@@ -23,16 +23,13 @@ public:
 	Shader* shader;
 	Texture* texture;
 	int drawType;
-	GameObject(Mesh* _mesh, Shader* _shader, Texture* _texture, Transform _transform = Transform(), Transform _localOffset = Transform()) {
+	GameObject(Mesh* _mesh, Shader* _shader, Texture* _texture, Transform _transform = Transform(), Transform _localOffset = Transform(), int _drawType = GL_TRIANGLES) {
 		mesh = _mesh;
 		texture = _texture;
 		shader = _shader;
 		transform = _transform;
 		localOffset = _localOffset;
-		drawType = GL_TRIANGLES;
-	}
-	void changeDrawType(int type) {
-		drawType = type;
+		drawType = _drawType;
 	}
 	void Draw() {
 		glBindVertexArray(mesh->VAO);

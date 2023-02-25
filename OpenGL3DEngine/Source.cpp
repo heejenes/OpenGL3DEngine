@@ -158,8 +158,7 @@ int main(int argc, char** argv) {
 	xAxisPoints.emplace_back(1, 0, 0, 1, 0, 0, 0, 0);
 	std::vector<unsigned int> xAxisIndices{ 2 };
 	Mesh xAxisMesh(xAxisPoints, xAxisIndices);
-	GameObject xAxis(&xAxisMesh, &ourShader, &defaultTexture);
-	xAxis.changeDrawType(GL_LINES);
+	GameObject xAxis(&xAxisMesh, &ourShader, &defaultTexture, Transform(), Transform(), GL_LINES);
 	allGameObjects.push_back(xAxis);
 
 	std::vector<Vertex> yAxisPoints;
@@ -167,8 +166,7 @@ int main(int argc, char** argv) {
 	yAxisPoints.emplace_back(0, 1, 0, 0, 1, 0, 0, 0);
 	std::vector<unsigned int> yAxisIndices{ 2 };
 	Mesh yAxisMesh(yAxisPoints, yAxisIndices);
-	GameObject yAxis(&yAxisMesh, &ourShader, &defaultTexture);
-	yAxis.changeDrawType(GL_LINES);
+	GameObject yAxis(&yAxisMesh, &ourShader, &defaultTexture, Transform(), Transform(), GL_LINES);
 	allGameObjects.push_back(yAxis);
 
 	std::vector<Vertex> zAxisPoints;
@@ -176,8 +174,7 @@ int main(int argc, char** argv) {
 	zAxisPoints.emplace_back(0, 0, 1, 0, 0, 1, 0, 0);
 	std::vector<unsigned int> zAxisIndices{ 2 };
 	Mesh zAxisMesh(zAxisPoints, zAxisIndices);
-	GameObject zAxis(&zAxisMesh, &ourShader, &defaultTexture);
-	zAxis.changeDrawType(GL_LINES);
+	GameObject zAxis(&zAxisMesh, &ourShader, &defaultTexture, Transform(), Transform(), GL_LINES);
 	allGameObjects.push_back(zAxis);
 
 	while (!glfwWindowShouldClose(window)) {
