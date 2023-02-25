@@ -5,15 +5,32 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <stb_image.h>
 #include <vector>
-#include "Callbacks.h"
 #include "Vertex.h"
+#include "UtilityFunctions.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "Camera.h"
-#include "UtilityFunctions.h"
+#include "Callbacks.h"
 #include "Mesh.h"
 #include "Transform.h"
 #include "GameObject.h"
+
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
+
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
+// camera
+
+Camera camera = Camera();
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
+bool firstMouse = true;
+
+// timing
+float deltaTime = 0.0f;	// time between current frame and last frame
+float lastFrame = 0.0f;
 
 void processInput(GLFWwindow* window, Camera* camera) {
 	// if user has pressed esc, close window
@@ -26,15 +43,14 @@ void processInput(GLFWwindow* window, Camera* camera) {
 	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-	const float cameraSpeed = 0.05f; // adjust accordingly
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera->cameraPos += cameraSpeed * camera->cameraDirection;
+		camera->ProcessKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera->cameraPos -= cameraSpeed * camera->cameraDirection;
+		camera->ProcessKeyboard(BACKWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera->cameraPos -= glm::normalize(glm::cross(camera->cameraDirection, camera->cameraUp)) * cameraSpeed;
+		camera->ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera->cameraPos += glm::normalize(glm::cross(camera->cameraDirection, camera->cameraUp)) * cameraSpeed;
+		camera->ProcessKeyboard(RIGHT, deltaTime);
 }
 
 int main(int argc, char** argv) {
@@ -42,7 +58,7 @@ int main(int argc, char** argv) {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-	GLFWwindow* window = glfwCreateWindow(800, 600, extractVersion(argv[0]), nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, extractVersion(argv[0]), nullptr, nullptr);
 	if (window == NULL) {
 		writeLog("Failed to create GLFW window\n");
 		glfwTerminate();
@@ -50,6 +66,12 @@ int main(int argc, char** argv) {
 	}
 
 	glfwMakeContextCurrent(window);
+
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+
+	// tell GLFW to capture our mouse
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		writeLog("Failed to initialize GLAD\n");
@@ -64,7 +86,6 @@ int main(int argc, char** argv) {
 
 	std::vector<GameObject> allGameObjects;
 	std::vector<Shader> allShaders;
-	Camera camera = Camera();
 
 	// Coordinates must be between -1 and 1 to appear on the screen. 
 	// This is called "normalized device coordinates (NDC)"
@@ -178,6 +199,11 @@ int main(int argc, char** argv) {
 	allGameObjects.push_back(zAxis);
 
 	while (!glfwWindowShouldClose(window)) {
+
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
 		// input handling
 		processInput(window, &camera);
 		// Update shaders when SPACE is pressed
@@ -210,4 +236,28 @@ int main(int argc, char** argv) {
 	glfwTerminate();
 	return 0;
 
+}
+
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
+	float xpos = static_cast<float>(xposIn);
+	float ypos = static_cast<float>(yposIn);
+
+	if (firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+	lastX = xpos;
+	lastY = ypos;
+
+	camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+	camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
