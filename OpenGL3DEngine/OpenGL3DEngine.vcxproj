@@ -145,13 +145,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Callbacks.h" />
-    <ClInclude Include="GLMUtilityFunctions.h" />
-    <ClInclude Include="TextureLoader.h" />
-    <ClInclude Include="OpenGLDraw.h" />
-    <ClInclude Include="OpenGLLoader.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Transform.h" />
     <ClInclude Include="UtilityFunctions.h" />
-    <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fshader.glsl" />
@@ -159,6 +159,8 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="container.jpg" />
+    <Image Include="swqusre_black.jpg" />
+    <Image Include="swqusre_white.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

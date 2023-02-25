@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Rendering">
-      <UniqueIdentifier>{77e3cc5b-ce21-4db8-9271-ebe7d1940c1f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Shaders">
       <UniqueIdentifier>{fdcd9b0d-f26a-4f51-bb42-ae5a0f86c8a3}</UniqueIdentifier>
     </Filter>
@@ -31,6 +28,18 @@
     <Filter Include="Assets\Textures">
       <UniqueIdentifier>{fe504d39-3fe6-4ea5-817d-0d5ad8e0d5ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\GameObject">
+      <UniqueIdentifier>{6fc2ee56-9791-4f63-919b-01b5d31d60d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Mesh">
+      <UniqueIdentifier>{2a2cddac-3f72-435e-83c9-5a213bb37848}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Transform">
+      <UniqueIdentifier>{85ea24d6-8874-431d-9dfb-b739ec61ea9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Camera">
+      <UniqueIdentifier>{df46f227-efb9-4f4b-ac1f-b576c5ab21a9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
@@ -44,23 +53,23 @@
     <ClInclude Include="UtilityFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Vertex.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OpenGLDraw.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="OpenGLLoader.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>Header Files\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="TextureLoader.h">
+    <ClInclude Include="Texture.h">
       <Filter>Header Files\Textures</Filter>
     </ClInclude>
-    <ClInclude Include="GLMUtilityFunctions.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="GameObject.h">
+      <Filter>Header Files\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Header Files\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files\Camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -73,6 +82,12 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="container.jpg">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="swqusre_black.jpg">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+    <Image Include="swqusre_white.jpg">
       <Filter>Assets\Textures</Filter>
     </Image>
   </ItemGroup>
