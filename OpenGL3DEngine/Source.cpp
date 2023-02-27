@@ -1,4 +1,5 @@
 #include <glad/glad.h>
+#include <string>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -12,6 +13,7 @@
 #include "Camera.h"
 #include "Callbacks.h"
 #include "Mesh.h"
+#include "Model.h"
 #include "Transform.h"
 #include "GameObject.h"
 
@@ -138,21 +140,24 @@ int main(int argc, char** argv) {
 	int arrayLength = 36 * stepSize;
 	for (int i = 0; i < arrayLength; i+=stepSize) {
 		vertexData.emplace_back(
-			vertices[i],
-			vertices[i+1],
-			vertices[i+2],
-			1,
-			1,
-			1,
-			vertices[i+3],
-			vertices[i+4]
+			Vertex(
+				vertices[i],
+				vertices[i+1],
+				vertices[i+2],
+				1,
+				1,
+				1,
+				vertices[i+3],
+				vertices[i+4]
+			)
 		);
 	}
 
 	std::vector<unsigned int> indices{36};
 
-	Texture crateTexture("container.jpg");
-	Mesh cubeMesh(vertexData, indices);
+	std::vector<Texture> crateTextures = { Texture("container.jpg") };
+	Mesh cubeMesh(vertexData, indices,  { crateTextures });
+	Model cubeModel = Model(cubeMesh);
 	Shader ourShader("vshader.glsl", "fshader.glsl");
 	allShaders.push_back(ourShader);
 	std::vector<Transform> cubeTransforms {
@@ -169,7 +174,7 @@ int main(int argc, char** argv) {
 	};
 	for (int i = 0; i < cubeTransforms.size(); i++) {
 		allGameObjects.push_back(
-			GameObject(&cubeMesh, &ourShader, &crateTexture, cubeTransforms[i])
+			GameObject(&cubeModel, &ourShader, cubeTransforms[i])
 		);
 	}
 	// world axis
@@ -178,24 +183,27 @@ int main(int argc, char** argv) {
 	xAxisPoints.emplace_back(-1, 0, 0, 1, 0, 0, 0, 1);
 	xAxisPoints.emplace_back(1, 0, 0, 1, 0, 0, 0, 0);
 	std::vector<unsigned int> xAxisIndices{ 2 };
-	Mesh xAxisMesh(xAxisPoints, xAxisIndices);
-	GameObject xAxis(&xAxisMesh, &ourShader, &defaultTexture, Transform(), Transform(), GL_LINES);
+	Mesh xAxisMesh(xAxisPoints, xAxisIndices, std::vector<Texture> {defaultTexture});
+	Model xAxisModel = Model(xAxisMesh);
+	GameObject xAxis(&xAxisModel, &ourShader, Transform(), Transform(), GL_LINES);
 	allGameObjects.push_back(xAxis);
 
 	std::vector<Vertex> yAxisPoints;
 	yAxisPoints.emplace_back(0, -1, 0, 0, 1, 0, 0, 1);
 	yAxisPoints.emplace_back(0, 1, 0, 0, 1, 0, 0, 0);
 	std::vector<unsigned int> yAxisIndices{ 2 };
-	Mesh yAxisMesh(yAxisPoints, yAxisIndices);
-	GameObject yAxis(&yAxisMesh, &ourShader, &defaultTexture, Transform(), Transform(), GL_LINES);
+	Mesh yAxisMesh(yAxisPoints, yAxisIndices, std::vector<Texture> {defaultTexture});
+	Model yAxisModel = Model(yAxisMesh);
+	GameObject yAxis(&yAxisModel, &ourShader, Transform(), Transform(), GL_LINES);
 	allGameObjects.push_back(yAxis);
 
 	std::vector<Vertex> zAxisPoints;
 	zAxisPoints.emplace_back(0, 0, -1, 0, 0, 1, 0, 1);
 	zAxisPoints.emplace_back(0, 0, 1, 0, 0, 1, 0, 0);
 	std::vector<unsigned int> zAxisIndices{ 2 };
-	Mesh zAxisMesh(zAxisPoints, zAxisIndices);
-	GameObject zAxis(&zAxisMesh, &ourShader, &defaultTexture, Transform(), Transform(), GL_LINES);
+	Mesh zAxisMesh(zAxisPoints, zAxisIndices, std::vector<Texture> {defaultTexture});
+	Model zAxisModel = Model(zAxisMesh);
+	GameObject zAxis(&zAxisModel, &ourShader, Transform(), Transform(), GL_LINES);
 	allGameObjects.push_back(zAxis);
 
 	while (!glfwWindowShouldClose(window)) {

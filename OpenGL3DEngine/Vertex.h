@@ -1,18 +1,34 @@
 #pragma once
 
 struct Vertex {
-	float Pos[8] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f };
+	glm::vec3 Position;
+	glm::vec3 Normal;
+	glm::vec2 TexCoords;
+	glm::vec3 rgb;
+	Vertex() {
+		Position = glm::vec3(0, 0, 0);
 
-	Vertex(float x, float y, float z, float r, float g, float b, float s, float t) {
-		Pos[0] = x;
-		Pos[1] = y;
-		Pos[2] = z;
+		Normal = glm::vec3(0, 0, 0);
 
-		Pos[3] = r;
-		Pos[4] = g;
-		Pos[5] = b;
+		TexCoords = glm::vec2(0, 0);
 
-		Pos[6] = s;
-		Pos[7] = t;
+		rgb = glm::vec3(1, 1, 1);
+	}
+
+	Vertex(float x, float y, float z, float nx, float ny, float nz, float s, float t, float r = 1, float g = 1, float b = 1) {
+		Position[0] = x;
+		Position[1] = y;
+		Position[2] = z;
+
+		Normal[0] = nx;
+		Normal[1] = ny;
+		Normal[2] = nz;
+
+		TexCoords[0] = s;
+		TexCoords[1] = t;
+
+		rgb[0] = r;
+		rgb[1] = g;
+		rgb[2] = b;
 	}
 };
