@@ -74,7 +74,11 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files\Camera</Filter>
     </ClInclude>
+<<<<<<< Updated upstream
     <ClInclude Include="Model.h">
+=======
+    <ClInclude Include="Vertex.h">
+>>>>>>> Stashed changes
       <Filter>Header Files\Mesh</Filter>
     </ClInclude>
   </ItemGroup>

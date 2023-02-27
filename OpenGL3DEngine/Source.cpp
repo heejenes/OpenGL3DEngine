@@ -140,6 +140,7 @@ int main(int argc, char** argv) {
 	int arrayLength = 36 * stepSize;
 	for (int i = 0; i < arrayLength; i+=stepSize) {
 		vertexData.emplace_back(
+<<<<<<< Updated upstream
 			Vertex(
 				vertices[i],
 				vertices[i+1],
@@ -150,6 +151,19 @@ int main(int argc, char** argv) {
 				vertices[i+3],
 				vertices[i+4]
 			)
+=======
+			vertices[i],
+			vertices[i+1],
+			vertices[i+2],
+			1,
+			1,
+			1,
+			vertices[i+3],
+			vertices[i+4],
+			1,
+			1,
+			1
+>>>>>>> Stashed changes
 		);
 	}
 
@@ -180,8 +194,8 @@ int main(int argc, char** argv) {
 	// world axis
 	Texture defaultTexture = Texture();
 	std::vector<Vertex> xAxisPoints;
-	xAxisPoints.emplace_back(-1, 0, 0, 1, 0, 0, 0, 1);
-	xAxisPoints.emplace_back(1, 0, 0, 1, 0, 0, 0, 0);
+	xAxisPoints.emplace_back(-1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0);
+	xAxisPoints.emplace_back(1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0);
 	std::vector<unsigned int> xAxisIndices{ 2 };
 	Mesh xAxisMesh(xAxisPoints, xAxisIndices, std::vector<Texture> {defaultTexture});
 	Model xAxisModel = Model(xAxisMesh);
@@ -189,8 +203,8 @@ int main(int argc, char** argv) {
 	allGameObjects.push_back(xAxis);
 
 	std::vector<Vertex> yAxisPoints;
-	yAxisPoints.emplace_back(0, -1, 0, 0, 1, 0, 0, 1);
-	yAxisPoints.emplace_back(0, 1, 0, 0, 1, 0, 0, 0);
+	yAxisPoints.emplace_back(0, -1, 0, 0, 1, 0, 0, 1, 0, 1, 0);
+	yAxisPoints.emplace_back(0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0);
 	std::vector<unsigned int> yAxisIndices{ 2 };
 	Mesh yAxisMesh(yAxisPoints, yAxisIndices, std::vector<Texture> {defaultTexture});
 	Model yAxisModel = Model(yAxisMesh);
@@ -198,8 +212,8 @@ int main(int argc, char** argv) {
 	allGameObjects.push_back(yAxis);
 
 	std::vector<Vertex> zAxisPoints;
-	zAxisPoints.emplace_back(0, 0, -1, 0, 0, 1, 0, 1);
-	zAxisPoints.emplace_back(0, 0, 1, 0, 0, 1, 0, 0);
+	zAxisPoints.emplace_back(0, 0, -1, 0, 0, 1, 0, 1, 0, 0, 1);
+	zAxisPoints.emplace_back(0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1);
 	std::vector<unsigned int> zAxisIndices{ 2 };
 	Mesh zAxisMesh(zAxisPoints, zAxisIndices, std::vector<Texture> {defaultTexture});
 	Model zAxisModel = Model(zAxisMesh);

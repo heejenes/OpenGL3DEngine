@@ -72,6 +72,7 @@ public:
 		// Arg 5: stride (number of bits between vertices = 3*(size of float))
 		// Arg 6: "offset of where the position data begins in buffer" learn more later.
 		glEnableVertexAttribArray(0);
+<<<<<<< Updated upstream
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
 
 		glEnableVertexAttribArray(1);
@@ -84,6 +85,17 @@ public:
 		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, rgb));
 
 		//glBindVertexArray(0);
+=======
+
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, Normal));
+		glEnableVertexAttribArray(1);
+
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, TexCoords));
+		glEnableVertexAttribArray(2);
+
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, rgb));
+		glEnableVertexAttribArray(3);
+>>>>>>> Stashed changes
 	}
 
 };
