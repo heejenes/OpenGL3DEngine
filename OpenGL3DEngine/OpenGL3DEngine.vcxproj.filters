@@ -40,9 +40,6 @@
     <Filter Include="Header Files\Camera">
       <UniqueIdentifier>{df46f227-efb9-4f4b-ac1f-b576c5ab21a9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Assets\Models">
-      <UniqueIdentifier>{2a11a50c-4873-4f69-b2cb-448871218d5c}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
@@ -74,11 +71,7 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files\Camera</Filter>
     </ClInclude>
-<<<<<<< Updated upstream
-    <ClInclude Include="Model.h">
-=======
     <ClInclude Include="Vertex.h">
->>>>>>> Stashed changes
       <Filter>Header Files\Mesh</Filter>
     </ClInclude>
   </ItemGroup>

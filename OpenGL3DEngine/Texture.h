@@ -6,11 +6,7 @@
 class Texture {
 public:
     unsigned int id;
-    std::string path;
-    // diffuse, specular, etc..
-    std::string type;
     Texture(const char* imageLoc = "swqusre_white.jpg") {
-        path = imageLoc;
         LoadTexture(imageLoc);
     }
     void LoadTexture(const char* imageLoc) {
