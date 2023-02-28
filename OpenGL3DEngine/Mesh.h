@@ -17,13 +17,25 @@ private:
 public:
 	std::vector<Vertex> vertexData;
 	std::vector<unsigned int> indices;
+	std::vector<Texture*> textures;
 	bool usesIndex;
 	int stride = 11;
 
-	
-	Mesh(std::vector<Vertex> _vertexData = std::vector<Vertex>{}, std::vector<unsigned int> _indices = std::vector<unsigned int>{}) {
+	Mesh(std::vector<Vertex> _vertexData, std::vector<unsigned int> _indices, Texture* _texture) {
 		std::copy(_vertexData.begin(), _vertexData.end(), back_inserter(vertexData));
 		std::copy(_indices.begin(), _indices.end(), back_inserter(indices));
+		textures.push_back(_texture);
+		if (_indices.size() == 1) {
+			usesIndex = false;
+		}
+		else {
+			usesIndex = true;
+		}
+	}
+	Mesh(std::vector<Vertex> _vertexData = std::vector<Vertex>{}, std::vector<unsigned int> _indices = std::vector<unsigned int>{}, std::vector<Texture*> _textures = std::vector<Texture*>{}) {
+		std::copy(_vertexData.begin(), _vertexData.end(), back_inserter(vertexData));
+		std::copy(_indices.begin(), _indices.end(), back_inserter(indices));
+		std::copy(_textures.begin(), _textures.end(), back_inserter(textures));
 		if (_indices.size() == 1) {
 			usesIndex = false;
 		}
@@ -56,7 +68,6 @@ public:
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
 		glBindVertexArray(VAO);
-
 
 		// for EBO
 		if (usesIndex) {

@@ -171,31 +171,31 @@ int main(int argc, char** argv) {
 	xAxisPoints.emplace_back(-1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0);
 	xAxisPoints.emplace_back(1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0);
 	std::vector<unsigned int> xAxisIndices{ 2 };
-	Mesh xAxisMesh = Mesh(xAxisPoints, xAxisIndices);
+	Mesh xAxisMesh = Mesh(xAxisPoints, xAxisIndices, &defaultTexture);
 	Model xAxisModel(&xAxisMesh);
-	GameObject xAxis(&xAxisModel, &ourShader, &defaultTexture, Transform(), Transform(), GL_LINES);
+	GameObject xAxis(&xAxisModel, &ourShader, Transform(), Transform(), GL_LINES);
 	allGameObjects.push_back(xAxis);
 
 	std::vector<Vertex> yAxisPoints;
 	yAxisPoints.emplace_back(0, -1, 0, 0, 1, 0, 0, 1, 0, 1, 0);
 	yAxisPoints.emplace_back(0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0);
 	std::vector<unsigned int> yAxisIndices{ 2 };
-	Mesh yAxisMesh = Mesh(yAxisPoints, yAxisIndices);
+	Mesh yAxisMesh = Mesh(yAxisPoints, yAxisIndices, &defaultTexture);
 	Model yAxisModel(&yAxisMesh);
-	GameObject yAxis(&yAxisModel, &ourShader, &defaultTexture, Transform(), Transform(), GL_LINES);
+	GameObject yAxis(&yAxisModel, &ourShader, Transform(), Transform(), GL_LINES);
 	allGameObjects.push_back(yAxis);
 
 	std::vector<Vertex> zAxisPoints;
 	zAxisPoints.emplace_back(0, 0, -1, 0, 0, 1, 0, 1, 0, 0, 1);
 	zAxisPoints.emplace_back(0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1);
 	std::vector<unsigned int> zAxisIndices{ 2 };
-	Mesh zAxisMesh = Mesh(zAxisPoints, zAxisIndices);
+	Mesh zAxisMesh = Mesh(zAxisPoints, zAxisIndices, &defaultTexture);
 	Model zAxisModel(&zAxisMesh);
-	GameObject zAxis(&zAxisModel, &ourShader, &defaultTexture, Transform(), Transform(), GL_LINES);
+	GameObject zAxis(&zAxisModel, &ourShader, Transform(), Transform(), GL_LINES);
 	allGameObjects.push_back(zAxis);
 
 	Texture crateTexture("container.jpg");
-	Mesh cubeMesh = Mesh(vertexData, indices);
+	Mesh cubeMesh = Mesh(vertexData, indices, &crateTexture);
 	Model cubeModel(&cubeMesh);
 	allShaders.push_back(ourShader);
 	std::vector<Transform> cubeTransforms {
@@ -212,7 +212,7 @@ int main(int argc, char** argv) {
 	};
 	for (int i = 0; i < cubeTransforms.size(); i++) {
 		allGameObjects.push_back(
-			GameObject(&cubeModel, &ourShader, &crateTexture, cubeTransforms[i])
+			GameObject(&cubeModel, &ourShader, cubeTransforms[i])
 		);
 	}
 	

@@ -21,12 +21,10 @@ public:
 	Transform transform;
 	Transform localOffset;
 	Shader* shader;
-	Texture* texture;
 	int drawType;
 	GameObject(
 		Model* _objModel, 
-		Shader* _shader, 
-		Texture* _texture, 
+		Shader* _shader,  
 		Transform _transform = Transform(), 
 		Transform _localOffset = Transform(), 
 		int _drawType = GL_TRIANGLES
@@ -35,7 +33,6 @@ public:
 		for (Mesh* mesh : objModel->meshes) {
 			mesh->LoadVertexBuffers();
 		}
-		texture = _texture;
 		shader = _shader;
 		transform = _transform;
 		localOffset = _localOffset;
@@ -43,13 +40,18 @@ public:
 	}
 	void Draw() {
 		for (Mesh* mesh : objModel->meshes) {
-			glBindTexture(GL_TEXTURE_2D, texture->id);
+			for (int i = 0; i < mesh->textures.size(); i ++) {
+				glActiveTexture(GL_TEXTURE0 + i);
+				std::string name = "ourTexture";
+				glUniform1i(glGetUniformLocation(shader->ID, name.c_str()), i);
+				glBindTexture(GL_TEXTURE_2D, mesh->textures[i]->id);
+			}
 
 			genModelMatrix();
 
 			glBindVertexArray(mesh->getVAO());
 			if (mesh->usesIndex) {
-				glDrawElements(drawType, mesh->indices.size(), GL_UNSIGNED_INT, 0);
+				glDrawElements(drawType, static_cast<unsigned int>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
 			}
 			else {
 				glDrawArrays(drawType, 0, mesh->indices[0]);
