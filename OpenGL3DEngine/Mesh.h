@@ -1,53 +1,70 @@
 #pragma once
 
+
 class Mesh {
+private:
+	unsigned int VBO = 0;
+	// points to VBO data already preconfigured with vertex attribute pointers. 
+	// Means that the attribute pointers must be configured only once for each
+	// configuration to a different VAO while in the loop, the corresponding
+	// VAO can be binded to.
+	unsigned int VAO = 0;
+	// allows for rendering vertices based on indices by storing the vertex data
+	// in GL_ELEMENT_ARRAY_BUFFER instead which holds the vertex of the corresponding
+	// index
+	unsigned int EBO = 0;
+	int uId;
 public:
 	std::vector<Vertex> vertexData;
 	std::vector<unsigned int> indices;
 	bool usesIndex;
 	int stride = 11;
 
-	unsigned int VBO;
-	// points to VBO data already preconfigured with vertex attribute pointers. 
-	// Means that the attribute pointers must be configured only once for each
-	// configuration to a different VAO while in the loop, the corresponding
-	// VAO can be binded to.
-	unsigned int VAO;
-	// allows for rendering vertices based on indices by storing the vertex data
-	// in GL_ELEMENT_ARRAY_BUFFER instead which holds the vertex of the corresponding
-	// index
-	unsigned int EBO;
-	Mesh(const std::vector<Vertex> _vertexData, std::vector<unsigned int> _indices) {
-		vertexData = _vertexData;
-		indices = _indices;
+	
+	Mesh(std::vector<Vertex> _vertexData = std::vector<Vertex>{}, std::vector<unsigned int> _indices = std::vector<unsigned int>{}) {
+		std::copy(_vertexData.begin(), _vertexData.end(), back_inserter(vertexData));
+		std::copy(_indices.begin(), _indices.end(), back_inserter(indices));
 		if (_indices.size() == 1) {
 			usesIndex = false;
 		}
 		else {
 			usesIndex = true;
 		}
-		LoadVertexBuffers();
+
+		/* initialize random seed: */
+		//uId = rand();
 	}
 
+	unsigned int getVAO() {
+		return VAO;
+	}
 	~Mesh() {
 		glDeleteVertexArrays(1, &VAO);
 		glDeleteBuffers(1, &VBO);
-		glDeleteBuffers(1, &EBO);
+		if (usesIndex) {
+			glDeleteBuffers(1, &EBO);
+		}
 		vertexData.clear();
 		indices.clear();
 	}
+	void operator= (Mesh _mesh) {
+		vertexData = _mesh.vertexData;
+		indices = _mesh.indices;
+	}
 
 	void LoadVertexBuffers() {
-		glGenBuffers(1, &EBO);
 		glGenVertexArrays(1, &VAO);
+		glGenBuffers(1, &VBO);
 		glBindVertexArray(VAO);
 
-		// creates a buffer objects in memory and assigns VBO to a buffer ID
-		// that can be used to access that object. The first parameter is for
-		// number of buffer items to create
-		glGenBuffers(1, &VBO);
-		// We can "bind" to several different buffers but only one of each type
-		// bind generated buffer to GL_ARRAY_BUFFER
+
+		// for EBO
+		if (usesIndex) {
+			glGenBuffers(1, &EBO);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+		}
+
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		// copy the vertexData to the buffer.
 		// 4th parameter takes how GPU should manage data
@@ -56,10 +73,6 @@ public:
 		// GL_STATIC_DRAW: the data is set only once and used many times.
 		// GL_DYNAMIC_DRAW: the data is changed a lot and used many times.
 		glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(Vertex), vertexData.data(), GL_STATIC_DRAW);
-
-		// for EBO
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
 		// Tell OpenGL how we've organized our vertices data (Looks at vertices data from the GL_ARRAY_BUFFER VBO)
 		// Arg 1: which vertex attribute to configure ("location = 0" from vertexShaderSource)
@@ -79,6 +92,7 @@ public:
 
 		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, rgb));
 		glEnableVertexAttribArray(3);
-	}
 
+		glBindVertexArray(0);
+	}
 };

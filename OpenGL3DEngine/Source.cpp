@@ -5,6 +5,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <stb_image.h>
 #include <vector>
+
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>       /* time */
+
 #include "Vertex.h"
 #include "UtilityFunctions.h"
 #include "Shader.h"
@@ -12,6 +16,7 @@
 #include "Camera.h"
 #include "Callbacks.h"
 #include "Mesh.h"
+#include "Model.h"
 #include "Transform.h"
 #include "GameObject.h"
 
@@ -54,10 +59,12 @@ void processInput(GLFWwindow* window, Camera* camera) {
 }
 
 int main(int argc, char** argv) {
+	srand(time(NULL));
 	glfwSetErrorCallback(glfwErrorCallback);
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, extractVersion(argv[0]), nullptr, nullptr);
 	if (window == NULL) {
 		writeLog("Failed to create GLFW window\n");
@@ -67,6 +74,8 @@ int main(int argc, char** argv) {
 
 	glfwMakeContextCurrent(window);
 
+	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+	glfwSetWindowCloseCallback(window, glfwWindowCloseCallback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
@@ -77,13 +86,15 @@ int main(int argc, char** argv) {
 		writeLog("Failed to initialize GLAD\n");
 		return -1;
 	}
+	// tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
+	stbi_set_flip_vertically_on_load(true);
 
-	glViewport(0, 0, 800, 600);
-	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
-	glfwSetWindowCloseCallback(window, glfwWindowCloseCallback);
+	// configure global opengl state
+	// -----------------------------
+	glEnable(GL_DEPTH_TEST);
 
 	glClearColor(0.3f, 0.3f, 0.6f, 0.f);
-
+	
 	std::vector<GameObject> allGameObjects;
 	std::vector<Shader> allShaders;
 
@@ -153,9 +164,39 @@ int main(int argc, char** argv) {
 
 	std::vector<unsigned int> indices{36};
 
+	Shader ourShader = Shader("vshader.glsl", "fshader.glsl");
+	// world axis
+	Texture defaultTexture = Texture();
+	std::vector<Vertex> xAxisPoints;
+	xAxisPoints.emplace_back(-1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0);
+	xAxisPoints.emplace_back(1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0);
+	std::vector<unsigned int> xAxisIndices{ 2 };
+	Mesh xAxisMesh = Mesh(xAxisPoints, xAxisIndices);
+	Model xAxisModel(&xAxisMesh);
+	GameObject xAxis(&xAxisModel, &ourShader, &defaultTexture, Transform(), Transform(), GL_LINES);
+	allGameObjects.push_back(xAxis);
+
+	std::vector<Vertex> yAxisPoints;
+	yAxisPoints.emplace_back(0, -1, 0, 0, 1, 0, 0, 1, 0, 1, 0);
+	yAxisPoints.emplace_back(0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0);
+	std::vector<unsigned int> yAxisIndices{ 2 };
+	Mesh yAxisMesh = Mesh(yAxisPoints, yAxisIndices);
+	Model yAxisModel(&yAxisMesh);
+	GameObject yAxis(&yAxisModel, &ourShader, &defaultTexture, Transform(), Transform(), GL_LINES);
+	allGameObjects.push_back(yAxis);
+
+	std::vector<Vertex> zAxisPoints;
+	zAxisPoints.emplace_back(0, 0, -1, 0, 0, 1, 0, 1, 0, 0, 1);
+	zAxisPoints.emplace_back(0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1);
+	std::vector<unsigned int> zAxisIndices{ 2 };
+	Mesh zAxisMesh = Mesh(zAxisPoints, zAxisIndices);
+	Model zAxisModel(&zAxisMesh);
+	GameObject zAxis(&zAxisModel, &ourShader, &defaultTexture, Transform(), Transform(), GL_LINES);
+	allGameObjects.push_back(zAxis);
+
 	Texture crateTexture("container.jpg");
-	Mesh cubeMesh(vertexData, indices);
-	Shader ourShader("vshader.glsl", "fshader.glsl");
+	Mesh cubeMesh = Mesh(vertexData, indices);
+	Model cubeModel(&cubeMesh);
 	allShaders.push_back(ourShader);
 	std::vector<Transform> cubeTransforms {
 		Transform(glm::vec3(0.0f,  0.0f,  5.0f)),
@@ -171,34 +212,10 @@ int main(int argc, char** argv) {
 	};
 	for (int i = 0; i < cubeTransforms.size(); i++) {
 		allGameObjects.push_back(
-			GameObject(&cubeMesh, &ourShader, &crateTexture, cubeTransforms[i])
+			GameObject(&cubeModel, &ourShader, &crateTexture, cubeTransforms[i])
 		);
 	}
-	// world axis
-	Texture defaultTexture = Texture();
-	std::vector<Vertex> xAxisPoints;
-	xAxisPoints.emplace_back(-1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0);
-	xAxisPoints.emplace_back(1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0);
-	std::vector<unsigned int> xAxisIndices{ 2 };
-	Mesh xAxisMesh(xAxisPoints, xAxisIndices);
-	GameObject xAxis(&xAxisMesh, &ourShader, &defaultTexture, Transform(), Transform(), GL_LINES);
-	allGameObjects.push_back(xAxis);
-
-	std::vector<Vertex> yAxisPoints;
-	yAxisPoints.emplace_back(0, -1, 0, 0, 1, 0, 0, 1, 0, 1, 0);
-	yAxisPoints.emplace_back(0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0);
-	std::vector<unsigned int> yAxisIndices{ 2 };
-	Mesh yAxisMesh(yAxisPoints, yAxisIndices);
-	GameObject yAxis(&yAxisMesh, &ourShader, &defaultTexture, Transform(), Transform(), GL_LINES);
-	allGameObjects.push_back(yAxis);
-
-	std::vector<Vertex> zAxisPoints;
-	zAxisPoints.emplace_back(0, 0, -1, 0, 0, 1, 0, 1, 0, 0, 1);
-	zAxisPoints.emplace_back(0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1);
-	std::vector<unsigned int> zAxisIndices{ 2 };
-	Mesh zAxisMesh(zAxisPoints, zAxisIndices);
-	GameObject zAxis(&zAxisMesh, &ourShader, &defaultTexture, Transform(), Transform(), GL_LINES);
-	allGameObjects.push_back(zAxis);
+	
 
 	while (!glfwWindowShouldClose(window)) {
 
