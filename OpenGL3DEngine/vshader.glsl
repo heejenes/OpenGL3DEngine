@@ -1,13 +1,14 @@
 
 #version 330 core
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 normal;
+layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoord;
 layout (location = 3) in vec3 aColor; 
   
-out vec3 ourColor; // output a color to the fragment shader
-out vec4 outPos;
+out vec3 objectColor; // output a color to the fragment shader
+out vec3 worldPos;
 out vec2 TexCoord;
+out vec3 Normal;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -15,8 +16,9 @@ uniform mat4 projection;
 
 void main()
 {
-    outPos = projection * view * model * vec4(aPos, 1.0);
-    gl_Position = outPos;
-    ourColor = aColor;
+    worldPos = vec3(model) * aPos;
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+    Normal = aNormal;
+    objectColor = aColor;
     TexCoord = aTexCoord;
 }       

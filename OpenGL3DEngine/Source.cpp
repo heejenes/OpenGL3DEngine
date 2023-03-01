@@ -57,6 +57,8 @@ void processInput(GLFWwindow* window, Camera* camera) {
 		camera->ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera->ProcessKeyboard(RIGHT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		camera->ProcessKeyboard(UP, deltaTime);
 }
 
 int main(int argc, char** argv) {
@@ -97,13 +99,14 @@ int main(int argc, char** argv) {
 	glClearColor(0.3f, 0.3f, 0.6f, 0.f);
 	
 	std::vector<GameObject> allGameObjects;
+	std::vector<GameObject> allEmitters;
 	std::vector<Shader> allShaders;
 
 	// Coordinates must be between -1 and 1 to appear on the screen. 
 	// This is called "normalized device coordinates (NDC)"
 	std::vector<Vertex> vertexData;
 	// each line of code is a 3d point, the three lines make a triangle
-	float vertices[] = {
+	float verticesAndTexCoords[] = {
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
 		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
@@ -146,26 +149,75 @@ int main(int argc, char** argv) {
 		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
-	int stepSize = 5;
-	int arrayLength = 36 * stepSize;
-	for (int i = 0; i < arrayLength; i+=stepSize) {
+	float verticesAndNormals[] = {
+	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+
+	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+
+	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+
+	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+
+	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+	};
+	
+	int tex, norm;
+	for (int i = 0; i < 36; i++) {
+		tex = i * 5;
+		norm = i * 6 + 3;
 		vertexData.emplace_back(
 			Vertex(
-				vertices[i],
-				vertices[i+1],
-				vertices[i+2],
-				1,
-				1,
-				1,
-				vertices[i+3],
-				vertices[i+4]
+				verticesAndTexCoords[tex],
+				verticesAndTexCoords[tex +1],
+				verticesAndTexCoords[tex +2],
+				verticesAndNormals[norm],
+				verticesAndNormals[norm + 1],
+				verticesAndNormals[norm + 2],
+				verticesAndTexCoords[tex +3],
+				verticesAndTexCoords[tex +4]
 			)
 		);
 	}
-
+	
 	std::vector<unsigned int> indices{36};
 
 	Shader ourShader = Shader("vshader.glsl", "fshader.glsl");
+	allShaders.push_back(ourShader);
+	Shader flatShader = Shader("vshader.glsl", "flatColorFrag.glsl");
+	allShaders.push_back(flatShader);
+
 	// world axis
 	Texture defaultTexture = Texture();
 	std::vector<Vertex> xAxisPoints;
@@ -174,7 +226,7 @@ int main(int argc, char** argv) {
 	std::vector<unsigned int> xAxisIndices{ 2 };
 	Mesh xAxisMesh = Mesh(xAxisPoints, xAxisIndices, &defaultTexture);
 	Model xAxisModel(&xAxisMesh);
-	GameObject xAxis(&xAxisModel, &ourShader, Transform(), Transform(), GL_LINES);
+	GameObject xAxis(&xAxisModel, &flatShader, Transform(), Transform(), GL_LINES);
 	allGameObjects.push_back(xAxis);
 
 	std::vector<Vertex> yAxisPoints;
@@ -183,7 +235,7 @@ int main(int argc, char** argv) {
 	std::vector<unsigned int> yAxisIndices{ 2 };
 	Mesh yAxisMesh = Mesh(yAxisPoints, yAxisIndices, &defaultTexture);
 	Model yAxisModel(&yAxisMesh);
-	GameObject yAxis(&yAxisModel, &ourShader, Transform(), Transform(), GL_LINES);
+	GameObject yAxis(&yAxisModel, &flatShader, Transform(), Transform(), GL_LINES);
 	allGameObjects.push_back(yAxis);
 
 	std::vector<Vertex> zAxisPoints;
@@ -192,13 +244,12 @@ int main(int argc, char** argv) {
 	std::vector<unsigned int> zAxisIndices{ 2 };
 	Mesh zAxisMesh = Mesh(zAxisPoints, zAxisIndices, &defaultTexture);
 	Model zAxisModel(&zAxisMesh);
-	GameObject zAxis(&zAxisModel, &ourShader, Transform(), Transform(), GL_LINES);
+	GameObject zAxis(&zAxisModel, &flatShader, Transform(), Transform(), GL_LINES);
 	allGameObjects.push_back(zAxis);
 
 	Texture crateTexture("container.jpg");
 	Mesh cubeMesh = Mesh(vertexData, indices, &crateTexture);
 	Model cubeModel(&cubeMesh);
-	allShaders.push_back(ourShader);
 	std::vector<Transform> cubeTransforms {
 		Transform(glm::vec3(0.0f,  0.0f,  5.0f)),
 		Transform(glm::vec3(2.0f,  5.0f, -15.0f)),
@@ -209,7 +260,8 @@ int main(int argc, char** argv) {
 		Transform(glm::vec3(1.3f, -2.0f, -2.5f)),
 		Transform(glm::vec3(1.5f,  2.0f, -2.5f)),
 		Transform(glm::vec3(1.5f,  0.2f, -1.5f)),
-		Transform(glm::vec3(-1.3f,  1.0f, -1.5f))
+		Transform(glm::vec3(-1.3f,  1.0f, -1.5f)),
+		Transform(glm::vec3(-1.3f,  10.0f, -1.5f))
 	};
 	for (int i = 0; i < cubeTransforms.size(); i++) {
 		allGameObjects.push_back(
@@ -217,11 +269,12 @@ int main(int argc, char** argv) {
 		);
 	}
 	
-	Emitter lightAEmitter(glm::vec3(1));
-	Mesh lightAMesh = Mesh(vertexData, indices, &crateTexture, &lightAEmitter);
+	Emitter lightAEmitter(glm::vec4(0,1,0,1));
+	Mesh lightAMesh = Mesh(vertexData, indices, &crateTexture, lightAEmitter);
 	Model lightAModel(&lightAMesh);
-	GameObject lightA(&lightAModel, &ourShader, Transform(glm::vec3(0, 4, 0)));
+	GameObject lightA(&lightAModel, &flatShader, Transform(glm::vec3(0, 4, 0), glm::vec3(0.3)));
 	allGameObjects.push_back(lightA);
+	allEmitters.push_back(lightA);
 
 	while (!glfwWindowShouldClose(window)) {
 
@@ -231,11 +284,6 @@ int main(int argc, char** argv) {
 
 		// input handling
 		processInput(window, &camera);
-		// Update shaders when SPACE is pressed
-		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-			writeLog("RELOADING SHADER\n");
-			ourShader.loadShader("vshader.glsl", "fshader.glsl");
-		}
 
 		// rendering
 		// 
@@ -246,7 +294,11 @@ int main(int argc, char** argv) {
 		camera.updateCamera(allShaders);
 		// draws game objects
 		for (int i = 0; i < allGameObjects.size(); i ++) {
-			allGameObjects[i].Draw();
+			// assuming shared shader and only one emmiter
+			allGameObjects[i].Draw(
+				allEmitters[0].GetWorldPos(),
+				allEmitters[0].GetEmitterColor()
+			);
 		}
 
 		// Swaps the front and back buffers. front buffer is the buffer 

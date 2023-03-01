@@ -2,22 +2,28 @@
 
 class GameObject {
 private:
-	void genModelMatrix() {
+	glm::mat4 genAndAssignModelMatrix() {
+		glm::mat4 model = genModelMatrix();
+		int modelLoc = glGetUniformLocation(shader->ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		return model;
+	}
+	glm::mat4 genModelMatrix() {
 		glm::mat4 model = glm::mat4(1.0f);
 		// scale, translate, rotate
 		// local
-		model = glm::scale(model, localOffset.scale); 
-		model = glm::translate(model, localOffset.pos);
 		model = glm::rotate(model, glm::radians(localOffset.angle), localOffset.rotationAxis);
+		model = glm::translate(model, localOffset.pos);
+		model = glm::scale(model, localOffset.scale);
 		// world pos
-		model = glm::scale(model, transform.scale);
-		model = glm::translate(model, transform.pos);
 		model = glm::rotate(model, glm::radians(transform.angle), transform.rotationAxis);
-		int modelLoc = glGetUniformLocation(shader->ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		model = glm::translate(model, transform.pos);
+		model = glm::scale(model, transform.scale);
+		return model;
 	}
 public:
 	Model* objModel;
+	// world pos
 	Transform transform;
 	Transform localOffset;
 	Shader* shader;
@@ -38,7 +44,19 @@ public:
 		localOffset = _localOffset;
 		drawType = _drawType;
 	}
-	void Draw() {
+	glm::vec3 GetEmitterColor() {
+		//std::cout << "emitter pos: " << worldPos[0] << " " << worldPos[1] << " " << worldPos[2] << std::endl;
+		for (Mesh* mesh : objModel->meshes) {
+			return (mesh->emitter.getEmitterColor());
+		}
+	}
+	glm::vec3 GetWorldPos() {
+		// location of gameObject in world space.
+		glm::vec4 worldPos = genModelMatrix() * glm::vec4(localOffset.pos, 1);
+		return glm::vec3(worldPos);
+		//std::cout << "emitter pos: " << worldPos[0] << " " << worldPos[1] << " " << worldPos[2] << std::endl;
+	}
+	void Draw(glm::vec3 emitterPos, glm::vec3 emitterColor) {
 		shader->use();
 		for (Mesh* mesh : objModel->meshes) {
 			for (int i = 0; i < mesh->textures.size(); i ++) {
@@ -48,14 +66,14 @@ public:
 				glBindTexture(GL_TEXTURE_2D, mesh->textures[i]->id);
 			}
 
-			if (mesh->emitter != NULL) {
-				shader->setVec3("emitterColor", mesh->emitter->rgb);
-			}
-			else {
-				shader->setVec3("emitterColor", glm::vec3(0));
-			}
+			genAndAssignModelMatrix();
 
-			genModelMatrix();
+			shader->setVec3("emitterColor", emitterColor);
+			shader->setVec3("emitterPos", emitterPos);
+			shader->setVec3("ambientColor", mesh->emitter.getAmbientColor());
+
+			//Normal;
+			glm::vec3 worldPos = GetWorldPos();
 
 			glBindVertexArray(mesh->getVAO());
 			if (mesh->usesIndex) {

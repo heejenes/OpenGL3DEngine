@@ -91,6 +91,9 @@
     <None Include="fshader.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="flatColorFrag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="container.jpg">

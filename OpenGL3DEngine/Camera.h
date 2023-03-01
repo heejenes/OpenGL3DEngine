@@ -4,7 +4,8 @@ enum Camera_Movement {
 	FORWARD,
 	BACKWARD,
 	LEFT,
-	RIGHT
+	RIGHT,
+	UP
 };
 
 class Camera {
@@ -98,6 +99,8 @@ public:
 			cameraPos -= cameraRight * velocity;
 		if (direction == RIGHT)
 			cameraPos += cameraRight * velocity;
+		if (direction == UP)
+			cameraPos += glm::vec3(0.0f, 1.0f, 0.0f) * velocity;
 	}
 
 	// processes input received from a mouse input system. Expects the offset value in both the x and y direction.

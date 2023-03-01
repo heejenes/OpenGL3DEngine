@@ -18,10 +18,14 @@ public:
 	std::vector<unsigned int> indices;
 	std::vector<Texture*> textures;
 	bool usesIndex;
-	Emitter* emitter;
+	Emitter emitter;
 	int stride = 11;
 
-	Mesh(std::vector<Vertex> _vertexData, std::vector<unsigned int> _indices, Texture* _texture, Emitter* _emitter = NULL) {
+	Mesh(
+		std::vector<Vertex> _vertexData, 
+		std::vector<unsigned int> _indices, Texture* _texture, 
+		Emitter _emitter = Emitter()
+	) {
 		std::copy(_vertexData.begin(), _vertexData.end(), back_inserter(vertexData));
 		std::copy(_indices.begin(), _indices.end(), back_inserter(indices));
 		textures.push_back(_texture);
@@ -34,10 +38,10 @@ public:
 		}
 	}
 	Mesh(
-		std::vector<Vertex> _vertexData = std::vector<Vertex>{}, 
-		std::vector<unsigned int> _indices = std::vector<unsigned int>{}, 
+		std::vector<Vertex> _vertexData = std::vector<Vertex>{},
+		std::vector<unsigned int> _indices = std::vector<unsigned int>{},
 		std::vector<Texture*> _textures = std::vector<Texture*>{},
-		Emitter* _emitter = NULL
+		Emitter _emitter = Emitter()
 	) {
 		std::copy(_vertexData.begin(), _vertexData.end(), back_inserter(vertexData));
 		std::copy(_indices.begin(), _indices.end(), back_inserter(indices));
