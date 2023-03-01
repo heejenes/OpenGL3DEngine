@@ -13,18 +13,19 @@ private:
 	// in GL_ELEMENT_ARRAY_BUFFER instead which holds the vertex of the corresponding
 	// index
 	unsigned int EBO = 0;
-	int uId;
 public:
 	std::vector<Vertex> vertexData;
 	std::vector<unsigned int> indices;
 	std::vector<Texture*> textures;
 	bool usesIndex;
+	Emitter* emitter;
 	int stride = 11;
 
-	Mesh(std::vector<Vertex> _vertexData, std::vector<unsigned int> _indices, Texture* _texture) {
+	Mesh(std::vector<Vertex> _vertexData, std::vector<unsigned int> _indices, Texture* _texture, Emitter* _emitter = NULL) {
 		std::copy(_vertexData.begin(), _vertexData.end(), back_inserter(vertexData));
 		std::copy(_indices.begin(), _indices.end(), back_inserter(indices));
 		textures.push_back(_texture);
+		emitter = _emitter;
 		if (_indices.size() == 1) {
 			usesIndex = false;
 		}
@@ -32,10 +33,16 @@ public:
 			usesIndex = true;
 		}
 	}
-	Mesh(std::vector<Vertex> _vertexData = std::vector<Vertex>{}, std::vector<unsigned int> _indices = std::vector<unsigned int>{}, std::vector<Texture*> _textures = std::vector<Texture*>{}) {
+	Mesh(
+		std::vector<Vertex> _vertexData = std::vector<Vertex>{}, 
+		std::vector<unsigned int> _indices = std::vector<unsigned int>{}, 
+		std::vector<Texture*> _textures = std::vector<Texture*>{},
+		Emitter* _emitter = NULL
+	) {
 		std::copy(_vertexData.begin(), _vertexData.end(), back_inserter(vertexData));
 		std::copy(_indices.begin(), _indices.end(), back_inserter(indices));
 		std::copy(_textures.begin(), _textures.end(), back_inserter(textures));
+		emitter = _emitter;
 		if (_indices.size() == 1) {
 			usesIndex = false;
 		}
@@ -43,8 +50,6 @@ public:
 			usesIndex = true;
 		}
 
-		/* initialize random seed: */
-		//uId = rand();
 	}
 
 	unsigned int getVAO() {

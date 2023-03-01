@@ -23,10 +23,10 @@ public:
 	Shader* shader;
 	int drawType;
 	GameObject(
-		Model* _objModel, 
-		Shader* _shader,  
-		Transform _transform = Transform(), 
-		Transform _localOffset = Transform(), 
+		Model* _objModel,
+		Shader* _shader,
+		Transform _transform = Transform(),
+		Transform _localOffset = Transform(),
 		int _drawType = GL_TRIANGLES
 	) {
 		objModel = _objModel;
@@ -39,12 +39,20 @@ public:
 		drawType = _drawType;
 	}
 	void Draw() {
+		shader->use();
 		for (Mesh* mesh : objModel->meshes) {
 			for (int i = 0; i < mesh->textures.size(); i ++) {
 				glActiveTexture(GL_TEXTURE0 + i);
 				std::string name = "ourTexture";
 				glUniform1i(glGetUniformLocation(shader->ID, name.c_str()), i);
 				glBindTexture(GL_TEXTURE_2D, mesh->textures[i]->id);
+			}
+
+			if (mesh->emitter != NULL) {
+				shader->setVec3("emitterColor", mesh->emitter->rgb);
+			}
+			else {
+				shader->setVec3("emitterColor", glm::vec3(0));
 			}
 
 			genModelMatrix();

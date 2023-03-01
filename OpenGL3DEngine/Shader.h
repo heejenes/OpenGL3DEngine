@@ -76,44 +76,6 @@ public:
         glDeleteShader(fragment);
     }
 
-    static unsigned int LoadVertexShader(const char* vertexShaderSource) {
-        unsigned int vertexShader;
-        // Create shader of type GL_VERTEX_SHADER and store id in vertexShader
-        vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        // link shader source code to shader in memory
-        glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-        // compile shader
-        glCompileShader(vertexShader);
-        // look for errors
-        
-        return vertexShader;
-    }
-
-    static unsigned int LoadFragShader(const char* fragmentShaderSource) {
-        unsigned int fragmentShader;
-        fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-        glCompileShader(fragmentShader);
-        // look for errors
-        
-        return fragmentShader;
-    }
-
-    static unsigned int LoadShaders(unsigned int& vertexShader, unsigned int& fragmentShader) {
-        unsigned int shaderProgram;
-        shaderProgram = glCreateProgram();
-        glAttachShader(shaderProgram, vertexShader);
-        glAttachShader(shaderProgram, fragmentShader);
-        glLinkProgram(shaderProgram);
-        // shaders/rendering after this point be done with our shaders
-        glUseProgram(shaderProgram);
-        // clears objects
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
-        
-        return shaderProgram;
-    }
-
     void use()
     {
         glUseProgram(ID);

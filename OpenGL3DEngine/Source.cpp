@@ -15,6 +15,7 @@
 #include "Texture.h"
 #include "Camera.h"
 #include "Callbacks.h"
+#include "Emitter.h"
 #include "Mesh.h"
 #include "Model.h"
 #include "Transform.h"
@@ -216,6 +217,11 @@ int main(int argc, char** argv) {
 		);
 	}
 	
+	Emitter lightAEmitter(glm::vec3(1));
+	Mesh lightAMesh = Mesh(vertexData, indices, &crateTexture, &lightAEmitter);
+	Model lightAModel(&lightAMesh);
+	GameObject lightA(&lightAModel, &ourShader, Transform(glm::vec3(0, 4, 0)));
+	allGameObjects.push_back(lightA);
 
 	while (!glfwWindowShouldClose(window)) {
 

@@ -40,6 +40,9 @@
     <Filter Include="Header Files\Camera">
       <UniqueIdentifier>{df46f227-efb9-4f4b-ac1f-b576c5ab21a9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Emitter">
+      <UniqueIdentifier>{133a8af5-3c4b-4139-b806-e270b8bd8942}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
@@ -76,6 +79,9 @@
     </ClInclude>
     <ClInclude Include="Model.h">
       <Filter>Header Files\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Emitter.h">
+      <Filter>Header Files\Emitter</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

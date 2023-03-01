@@ -145,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Callbacks.h" />
+    <ClInclude Include="Emitter.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Mesh.h" />
