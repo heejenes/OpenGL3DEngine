@@ -275,7 +275,8 @@ int main(int argc, char** argv) {
 	Emitter lightAEmitter(Light(
 		glm::vec3(0.1f),
 		glm::vec3(1.0f),
-		glm::vec3(1.0f)
+		glm::vec3(1.0f),
+		glm::vec4(1.0f, 1.f, 1.f, 1.f)
 	));
 	Mesh lightAMesh = Mesh(vertexData, indices, &crateTexture, lightAEmitter);
 	Model lightAModel(&lightAMesh);

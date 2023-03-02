@@ -67,8 +67,9 @@ public:
 			
 			shader->setVec3("light.ambient", light.ambient);
 			shader->setVec3("light.diffuse", light.diffuse);
-			shader->setVec3("light.position", emitterPos);
 			shader->setVec3("light.specular", light.specular);
+			shader->setVec3("light.position", emitterPos);
+			shader->setVec4("light.lightDir", light.lightDir);
 
 			shader->setVec3("material.ambient", mesh->emitter.material.ambient);
 			shader->setVec3("material.diffuse", mesh->emitter.material.diffuse);
