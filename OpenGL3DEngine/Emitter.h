@@ -13,16 +13,16 @@ public:
 	bool isEmitter = false;
 	// default rgba value is ambient value
 	Emitter(
-		glm::vec4 _emitterColor = glm::vec4(0), 
+		glm::vec4 _emitterColor = glm::vec4(0.f), 
 		bool _usesTexture = false
 	) {
 		emitterColor = _emitterColor;
-		ambientColor = glm::vec4(1, 1, 1, 0.1);
+		ambientColor = glm::vec4(1.f, 1.f, 1.f, 0.1f);
 		usesTexture = _usesTexture;
 		TexCoords = glm::vec2(0);
 		texture = NULL;
 
-		if (getEmitterColor() != glm::vec3(0)) {
+		if (getEmitterColor() != glm::vec3(0.f)) {
 			isEmitter = true;
 		}
 	}

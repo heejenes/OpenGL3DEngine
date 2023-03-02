@@ -2,11 +2,10 @@
 
 class GameObject {
 private:
-	glm::mat4 genAndAssignModelMatrix() {
+	void genAndAssignModelMatrix() {
 		glm::mat4 model = genModelMatrix();
-		int modelLoc = glGetUniformLocation(shader->ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		return model;
+		shader->use();
+		shader->setMat4("model", model);
 	}
 	glm::mat4 genModelMatrix() {
 		glm::mat4 model = glm::mat4(1.0f);
@@ -67,13 +66,10 @@ public:
 			}
 
 			genAndAssignModelMatrix();
-
+			
 			shader->setVec3("emitterColor", emitterColor);
 			shader->setVec3("emitterPos", emitterPos);
 			shader->setVec3("ambientColor", mesh->emitter.getAmbientColor());
-
-			//Normal;
-			glm::vec3 worldPos = GetWorldPos();
 
 			glBindVertexArray(mesh->getVAO());
 			if (mesh->usesIndex) {

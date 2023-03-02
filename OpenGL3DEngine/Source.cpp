@@ -269,10 +269,10 @@ int main(int argc, char** argv) {
 		);
 	}
 	
-	Emitter lightAEmitter(glm::vec4(0,1,0,1));
+	Emitter lightAEmitter(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	Mesh lightAMesh = Mesh(vertexData, indices, &crateTexture, lightAEmitter);
 	Model lightAModel(&lightAMesh);
-	GameObject lightA(&lightAModel, &flatShader, Transform(glm::vec3(0, 4, 0), glm::vec3(0.3)));
+	GameObject lightA(&lightAModel, &flatShader, Transform(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(0.3f)));
 	allGameObjects.push_back(lightA);
 	allEmitters.push_back(lightA);
 

@@ -6,10 +6,10 @@ struct Vertex {
 	glm::vec2 TexCoords;
 	glm::vec3 rgb;
 	Vertex() {
-		Position = glm::vec3(0);
-		Normal = glm::vec3(0);
-		TexCoords = glm::vec2(0);
-		rgb = glm::vec3(1);
+		Position = glm::vec3(0.f);
+		Normal = glm::vec3(0.f);
+		TexCoords = glm::vec2(0.f);
+		rgb = glm::vec3(1.f);
 	}
 	Vertex(float x, float y, float z, float nx, float ny, float nz, float s, float t, float r = 1, float g = 1, float b = 1) {
 		Position[0] = x;
