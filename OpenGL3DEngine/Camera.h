@@ -40,6 +40,7 @@ public:
 	void updateCamera(std::vector<Shader> allShaders) {
 		for (Shader shader : allShaders) {
 			shader.use();
+			shader.setVec3("viewPos", cameraPos);
 			genViewMatrix(shader);
 			genProjMatrix(shader);
 		}
