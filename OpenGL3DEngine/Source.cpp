@@ -10,6 +10,9 @@
 #include <time.h>       /* time */
 
 #include "Vertex.h"
+#include "Material.h"
+#include "Light.h"
+
 #include "UtilityFunctions.h"
 #include "Shader.h"
 #include "Texture.h"
@@ -269,7 +272,11 @@ int main(int argc, char** argv) {
 		);
 	}
 	
-	Emitter lightAEmitter(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	Emitter lightAEmitter(Light(
+		glm::vec3(0.1f),
+		glm::vec3(1.0f),
+		glm::vec3(1.0f)
+	));
 	Mesh lightAMesh = Mesh(vertexData, indices, &crateTexture, lightAEmitter);
 	Model lightAModel(&lightAMesh);
 	GameObject lightA(&lightAModel, &flatShader, Transform(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(0.3f)));
@@ -296,8 +303,8 @@ int main(int argc, char** argv) {
 		for (int i = 0; i < allGameObjects.size(); i ++) {
 			// assuming shared shader and only one emmiter
 			allGameObjects[i].Draw(
-				allEmitters[0].GetWorldPos(),
-				allEmitters[0].GetEmitterColor()
+				allEmitters[0].GetEmitterLight(),
+				allEmitters[0].GetWorldPos()
 			);
 		}
 

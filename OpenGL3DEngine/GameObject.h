@@ -43,19 +43,17 @@ public:
 		localOffset = _localOffset;
 		drawType = _drawType;
 	}
-	glm::vec3 GetEmitterColor() {
-		//std::cout << "emitter pos: " << worldPos[0] << " " << worldPos[1] << " " << worldPos[2] << std::endl;
+	Light GetEmitterLight() {
 		for (Mesh* mesh : objModel->meshes) {
-			return (mesh->emitter.getEmitterColor());
+			return (mesh->emitter.light);
 		}
 	}
 	glm::vec3 GetWorldPos() {
 		// location of gameObject in world space.
 		glm::vec4 worldPos = genModelMatrix() * glm::vec4(localOffset.pos, 1);
 		return glm::vec3(worldPos);
-		//std::cout << "emitter pos: " << worldPos[0] << " " << worldPos[1] << " " << worldPos[2] << std::endl;
 	}
-	void Draw(glm::vec3 emitterPos, glm::vec3 emitterColor) {
+	void Draw(Light light, glm::vec3 emitterPos) {
 		shader->use();
 		for (Mesh* mesh : objModel->meshes) {
 			for (int i = 0; i < mesh->textures.size(); i ++) {
@@ -67,9 +65,15 @@ public:
 
 			genAndAssignModelMatrix();
 			
-			shader->setVec3("emitterColor", emitterColor);
-			shader->setVec3("emitterPos", emitterPos);
-			shader->setVec3("ambientColor", mesh->emitter.getAmbientColor());
+			shader->setVec3("light.ambient", light.ambient);
+			shader->setVec3("light.diffuse", light.diffuse);
+			shader->setVec3("light.position", emitterPos);
+			shader->setVec3("light.specular", light.specular);
+
+			shader->setVec3("material.ambient", mesh->emitter.material.ambient);
+			shader->setVec3("material.diffuse", mesh->emitter.material.diffuse);
+			shader->setVec3("material.specular", mesh->emitter.material.specular);
+			shader->setFloat("material.shininess", mesh->emitter.material.shininess);
 
 			glBindVertexArray(mesh->getVAO());
 			if (mesh->usesIndex) {

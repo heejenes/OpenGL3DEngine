@@ -83,6 +83,12 @@
     <ClInclude Include="Emitter.h">
       <Filter>Header Files\Emitter</Filter>
     </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Header Files\Emitter</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files\Emitter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vshader.glsl">

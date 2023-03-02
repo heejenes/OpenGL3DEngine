@@ -148,6 +148,8 @@
     <ClInclude Include="Emitter.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Texture.h" />
