@@ -1,7 +1,9 @@
 ﻿
 OpenGL3DEngine/.vs/
+OpenGL3DEngine/.vs
 OpenGL3DEngine/x64/
-
+OpenGL3DEngine/x64
+OpenGL3DEngine/AAA/
 OpenGL3DEngine/Debug/
 
 OpenGL3DEngine/LOGGER_OUTPUT.txt
