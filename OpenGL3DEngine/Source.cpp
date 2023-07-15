@@ -23,6 +23,10 @@
 #include "Model.h"
 #include "Transform.h"
 #include "GameObject.h"
+#include "MeshData.h"
+#include "BoxData.h"
+
+#include "TerrainGenerator.h"
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -40,18 +44,23 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
+float frameRate = 0.0f;
 
 void processInput(GLFWwindow* window, Camera* camera) {
 	// if user has pressed esc, close window
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
 	}
+
+	// mesh rendering toggles
 	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
+
+	// controls
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera->ProcessKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -63,6 +72,21 @@ void processInput(GLFWwindow* window, Camera* camera) {
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 		camera->ProcessKeyboard(UP, deltaTime);
 }
+
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_F && action == GLFW_PRESS)
+	{
+		writeLog("\nFRAMERATE: ");
+		char buffer[10];
+		int ret = snprintf(buffer, sizeof buffer, "%f", frameRate);
+		if (ret >= 0) {
+			writeLog(buffer);
+		}
+	}
+}
+
 
 int main(int argc, char** argv) {
 	srand(time(NULL));
@@ -83,6 +107,7 @@ int main(int argc, char** argv) {
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 	glfwSetWindowCloseCallback(window, glfwWindowCloseCallback);
 	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetKeyCallback(window, key_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
 	// tell GLFW to capture our mouse
@@ -107,109 +132,25 @@ int main(int argc, char** argv) {
 
 	// Coordinates must be between -1 and 1 to appear on the screen. 
 	// This is called "normalized device coordinates (NDC)"
-	std::vector<Vertex> vertexData;
+	std::vector<Vertex> boxVertexData;
 	// each line of code is a 3d point, the three lines make a triangle
-	float verticesAndTexCoords[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-	};
-	float verticesAndNormals[] = {
-	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-
-	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-
-	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-	-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-	-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-
-	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-
-	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-	 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-	};
+	BoxData boxData;
 	
-	int tex, norm;
+	int ver, tex, norm;
 	for (int i = 0; i < 36; i++) {
-		tex = i * 5;
-		norm = i * 6 + 3;
-		vertexData.emplace_back(
+		ver = i * 3;
+		norm = i * 3;
+		tex = i * 2;
+		boxVertexData.emplace_back(
 			Vertex(
-				verticesAndTexCoords[tex],
-				verticesAndTexCoords[tex +1],
-				verticesAndTexCoords[tex +2],
-				verticesAndNormals[norm],
-				verticesAndNormals[norm + 1],
-				verticesAndNormals[norm + 2],
-				verticesAndTexCoords[tex +3],
-				verticesAndTexCoords[tex +4]
+				boxData.vertices[ver],
+				boxData.vertices[ver + 1],
+				boxData.vertices[ver + 2],
+				boxData.normals[norm],
+				boxData.normals[norm + 1],
+				boxData.normals[norm + 2],
+				boxData.texCoords[tex],
+				boxData.texCoords[tex + 1]
 			)
 		);
 	}
@@ -251,7 +192,7 @@ int main(int argc, char** argv) {
 	allGameObjects.push_back(zAxis);
 
 	Texture crateTexture("container.jpg");
-	Mesh cubeMesh = Mesh(vertexData, indices, &crateTexture);
+	Mesh cubeMesh = Mesh(boxVertexData, indices, &crateTexture);
 	Model cubeModel(&cubeMesh);
 	std::vector<Transform> cubeTransforms {
 		Transform(glm::vec3(0.0f,  0.0f,  5.0f)),
@@ -271,6 +212,17 @@ int main(int argc, char** argv) {
 			GameObject(&cubeModel, &ourShader, cubeTransforms[i])
 		);
 	}
+
+	// Terrain
+	/*TerrainGenerator gen = TerrainGenerator(
+		200,
+		200,
+		1.0f,
+		&ourShader, 
+		Transform(glm::vec3(0.0f, 0.0f, 0.0f))
+	);
+	allGameObjects.push_back(gen.GetGameObject());*/
+	
 	
 	Emitter lightAEmitter(Light(
 		glm::vec3(0.1f),
@@ -278,7 +230,7 @@ int main(int argc, char** argv) {
 		glm::vec3(1.0f),
 		glm::vec4(1.0f, 1.f, 1.f, 0.f)
 	));
-	Mesh lightAMesh = Mesh(vertexData, indices, &crateTexture, lightAEmitter);
+	Mesh lightAMesh = Mesh(boxVertexData, indices, &crateTexture, lightAEmitter);
 	Model lightAModel(&lightAMesh);
 	GameObject lightA(&lightAModel, &flatShader, Transform(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(0.3f)));
 	allGameObjects.push_back(lightA);
@@ -288,6 +240,7 @@ int main(int argc, char** argv) {
 
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
+		frameRate = (deltaTime == 0) ? 999 : 1.0f / deltaTime;
 		lastFrame = currentFrame;
 
 		// input handling

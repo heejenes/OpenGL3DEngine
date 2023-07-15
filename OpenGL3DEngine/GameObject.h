@@ -43,6 +43,7 @@ public:
 		localOffset = _localOffset;
 		drawType = _drawType;
 	}
+
 	Light GetEmitterLight() {
 		for (Mesh* mesh : objModel->meshes) {
 			return (mesh->emitter.light);

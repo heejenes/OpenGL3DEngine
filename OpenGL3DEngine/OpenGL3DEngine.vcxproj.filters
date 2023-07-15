@@ -43,10 +43,19 @@
     <Filter Include="Header Files\Emitter">
       <UniqueIdentifier>{133a8af5-3c4b-4139-b806-e270b8bd8942}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\Meshes">
+      <UniqueIdentifier>{f85a1b5d-10df-491c-a4c4-21a835ed5b61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\TerrainGenerator">
+      <UniqueIdentifier>{78e94c4d-78ea-4421-bfff-645cc59e589d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BoxData.h">
+      <Filter>Assets\Meshes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -88,6 +97,12 @@
     </ClInclude>
     <ClInclude Include="Light.h">
       <Filter>Header Files\Emitter</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshData.h">
+      <Filter>Assets\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainGenerator.h">
+      <Filter>Header Files\TerrainGenerator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

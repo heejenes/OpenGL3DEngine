@@ -23,7 +23,8 @@ public:
 
 	Mesh(
 		std::vector<Vertex> _vertexData, 
-		std::vector<unsigned int> _indices, Texture* _texture, 
+		std::vector<unsigned int> _indices, 
+		Texture* _texture, 
 		Emitter _emitter = Emitter()
 	) {
 		std::copy(_vertexData.begin(), _vertexData.end(), back_inserter(vertexData));
@@ -69,8 +70,8 @@ public:
 		indices.clear();
 	}
 	void operator= (Mesh _mesh) {
-		vertexData = _mesh.vertexData;
-		indices = _mesh.indices;
+		std::copy(_mesh.vertexData.begin(), _mesh.vertexData.end(), back_inserter(vertexData));
+		std::copy(_mesh.indices.begin(), _mesh.indices.end(), back_inserter(indices));
 	}
 
 	void LoadVertexBuffers() {
