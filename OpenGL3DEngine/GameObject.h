@@ -27,12 +27,17 @@ public:
 	Transform localOffset;
 	Shader* shader;
 	int drawType;
+	bool isInstanced;
+	int instanceWidth, instanceHeight;
 	GameObject(
 		Model* _objModel,
 		Shader* _shader,
 		Transform _transform = Transform(),
 		Transform _localOffset = Transform(),
-		int _drawType = GL_TRIANGLES
+		int _drawType = GL_TRIANGLES,
+		bool _isInstanced = false,
+		int _instanceWidth = 0,
+		int _instanceHeight = 0
 	) {
 		objModel = _objModel;
 		for (Mesh* mesh : objModel->meshes) {
@@ -42,6 +47,20 @@ public:
 		transform = _transform;
 		localOffset = _localOffset;
 		drawType = _drawType;
+		isInstanced = _isInstanced;
+		instanceWidth = _instanceWidth;
+		instanceHeight = _instanceHeight;
+	}
+
+	void operator= (GameObject other) {
+		objModel = other.objModel;
+		for (Mesh* mesh : objModel->meshes) {
+			mesh->LoadVertexBuffers();
+		}
+		shader = other.shader;
+		transform = other.transform;
+		localOffset = other.localOffset;
+		drawType = other.drawType;
 	}
 
 	Light GetEmitterLight() {
@@ -86,10 +105,20 @@ public:
 
 			glBindVertexArray(mesh->getVAO());
 			if (mesh->usesIndex) {
-				glDrawElements(drawType, static_cast<unsigned int>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
+				if (isInstanced) {
+					glDrawElementsInstanced(drawType, static_cast<unsigned int>(mesh->indices.size()), GL_UNSIGNED_INT, 0, instanceHeight * instanceWidth);
+				}
+				else {
+					glDrawElements(drawType, static_cast<unsigned int>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
+				}
 			}
 			else {
-				glDrawArrays(drawType, 0, mesh->indices[0]);
+				if (isInstanced) {
+					glDrawArraysInstanced(drawType, 0, mesh->indices[0], instanceHeight * instanceWidth);
+				}
+				else {
+					glDrawArrays(drawType, 0, mesh->indices[0]);
+				}
 			}
 		}
 	}

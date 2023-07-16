@@ -19,7 +19,7 @@ public:
 	float Yaw;
 	float Pitch;
 
-	float MovementSpeed = 2.5f;
+	float MovementSpeed = 4.5f;
 	float MouseSensitivity = 0.1f;
 	// fovY in degrees
 	float Zoom = 45.0f;

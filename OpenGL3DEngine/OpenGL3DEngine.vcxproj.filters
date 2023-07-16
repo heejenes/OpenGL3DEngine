@@ -49,6 +49,9 @@
     <Filter Include="Header Files\TerrainGenerator">
       <UniqueIdentifier>{78e94c4d-78ea-4421-bfff-645cc59e589d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\TerrainGenerator\Noise">
+      <UniqueIdentifier>{b9963a6e-4f8a-4458-972f-3b8e05d5eba7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
@@ -103,6 +106,9 @@
     </ClInclude>
     <ClInclude Include="TerrainGenerator.h">
       <Filter>Header Files\TerrainGenerator</Filter>
+    </ClInclude>
+    <ClInclude Include="PerlinNoise.h">
+      <Filter>Header Files\TerrainGenerator\Noise</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

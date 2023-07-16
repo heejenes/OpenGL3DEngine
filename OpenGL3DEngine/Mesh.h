@@ -19,7 +19,7 @@ public:
 	std::vector<Texture*> textures;
 	bool usesIndex;
 	Emitter emitter;
-	int stride = 11;
+	int stride = 12;
 
 	Mesh(
 		std::vector<Vertex> _vertexData, 
@@ -68,10 +68,22 @@ public:
 		}
 		vertexData.clear();
 		indices.clear();
+		textures.clear();
 	}
 	void operator= (Mesh _mesh) {
+		vertexData.clear();
+		indices.clear();
+		textures.clear();
 		std::copy(_mesh.vertexData.begin(), _mesh.vertexData.end(), back_inserter(vertexData));
 		std::copy(_mesh.indices.begin(), _mesh.indices.end(), back_inserter(indices));
+		std::copy(_mesh.textures.begin(), _mesh.textures.end(), back_inserter(textures));
+		emitter = _mesh.emitter;
+		if (indices.size() == 1) {
+			usesIndex = false;
+		}
+		else {
+			usesIndex = true;
+		}
 	}
 
 	void LoadVertexBuffers() {
@@ -111,7 +123,7 @@ public:
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, TexCoords));
 		glEnableVertexAttribArray(2);
 
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, rgb));
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, rgba));
 		glEnableVertexAttribArray(3);
 
 		glBindVertexArray(0);

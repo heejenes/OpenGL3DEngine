@@ -214,14 +214,17 @@ int main(int argc, char** argv) {
 	}
 
 	// Terrain
-	/*TerrainGenerator gen = TerrainGenerator(
+	TerrainGenerator gen = TerrainGenerator(
 		200,
 		200,
-		1.0f,
+		0.2f,
 		&ourShader, 
-		Transform(glm::vec3(0.0f, 0.0f, 0.0f))
+		&defaultTexture,
+		&defaultTexture,
+		Transform()
 	);
-	allGameObjects.push_back(gen.GetGameObject());*/
+	GameObject terrain = gen.GetGameObject();
+	allGameObjects.push_back(terrain);
 	
 	
 	Emitter lightAEmitter(Light(
@@ -232,9 +235,21 @@ int main(int argc, char** argv) {
 	));
 	Mesh lightAMesh = Mesh(boxVertexData, indices, &crateTexture, lightAEmitter);
 	Model lightAModel(&lightAMesh);
-	GameObject lightA(&lightAModel, &flatShader, Transform(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(0.3f)));
-	allGameObjects.push_back(lightA);
-	allEmitters.push_back(lightA);
+	GameObject lightA(&lightAModel, &flatShader, Transform(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(0.3f))); 
+	//allGameObjects.push_back(lightA);
+	//allEmitters.push_back(lightA);
+
+	Emitter lightBSun(Light(
+		glm::vec3(0.1f),
+		glm::vec3(5.f),
+		glm::vec3(1.0f),
+		glm::vec4(1.0f, 1.f, 1.f, 0.0f)
+	));
+	Mesh lightBMesh = Mesh(boxVertexData, indices, &crateTexture, lightBSun);
+	Model lightBModel(&lightBMesh);
+	GameObject lightB(&lightBModel, &flatShader, Transform(glm::vec3(1.2f, 19.0f, 2.0f), glm::vec3(2.3f)));
+	allGameObjects.push_back(lightB);
+	allEmitters.push_back(lightB);
 
 	while (!glfwWindowShouldClose(window)) {
 

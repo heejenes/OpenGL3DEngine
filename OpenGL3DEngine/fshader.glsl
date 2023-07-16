@@ -24,6 +24,8 @@ out vec4 FragColor;
 in vec3 objectColor;
 in vec2 TexCoord;
 
+in float opacity;
+
 in vec3 Normal;
 in vec3 worldPos;
 
@@ -75,5 +77,5 @@ void main()
     ///////////////////////////////////////
 
     vec3 lightResult = ambient + diffuse + specular;
-    FragColor = texture(ourTexture, TexCoord) * vec4(lightResult, 1.0);
+    FragColor = texture(ourTexture, TexCoord) * vec4(lightResult, 1.0) * vec4(objectColor, opacity);
 }
