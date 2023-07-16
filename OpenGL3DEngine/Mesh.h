@@ -39,6 +39,26 @@ public:
 		}
 	}
 	Mesh(
+		std::vector<Vertex> _vertexData,
+		unsigned int* _indices,
+		int indicesSize,
+		Texture* _texture,
+		Emitter _emitter = Emitter()
+	) {
+		std::copy(_vertexData.begin(), _vertexData.end(), back_inserter(vertexData));
+		indices.clear();
+		indices.resize(indicesSize);
+		std::copy(_indices, _indices + indicesSize, indices.begin());
+		textures.push_back(_texture);
+		emitter = _emitter;
+		if (indices.size() == 1) {
+			usesIndex = false;
+		}
+		else {
+			usesIndex = true;
+		}
+	}
+	Mesh(
 		std::vector<Vertex> _vertexData = std::vector<Vertex>{},
 		std::vector<unsigned int> _indices = std::vector<unsigned int>{},
 		std::vector<Texture*> _textures = std::vector<Texture*>{},

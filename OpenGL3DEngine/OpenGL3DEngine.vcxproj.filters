@@ -110,6 +110,12 @@
     <ClInclude Include="PerlinNoise.h">
       <Filter>Header Files\TerrainGenerator\Noise</Filter>
     </ClInclude>
+    <ClInclude Include="GrassData.h">
+      <Filter>Assets\Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="grassGenerator.h">
+      <Filter>Header Files\TerrainGenerator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vshader.glsl">
@@ -119,6 +125,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="flatColorFrag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="grassVShader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="grassFShader.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

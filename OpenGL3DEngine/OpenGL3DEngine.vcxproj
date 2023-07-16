@@ -150,6 +150,8 @@
     <ClInclude Include="Emitter.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="GrassData.h" />
+    <ClInclude Include="grassGenerator.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
@@ -166,6 +168,8 @@
   <ItemGroup>
     <None Include="flatColorFrag.glsl" />
     <None Include="fshader.glsl" />
+    <None Include="grassFShader.glsl" />
+    <None Include="grassVShader.glsl" />
     <None Include="vshader.glsl" />
   </ItemGroup>
   <ItemGroup>

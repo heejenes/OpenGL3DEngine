@@ -6,6 +6,7 @@ struct BoxData : MeshData {
 		sizeV = 3 * 6 * 6;
 		sizeT = 2 * 6 * 6;
 		sizeN = 3 * 6 * 6;
+		sizeI = 1;
 		vertices = new float[sizeV] {
 			-0.5f, -0.5f, -0.5f,
 			0.5f, -0.5f, -0.5f,
@@ -129,6 +130,9 @@ struct BoxData : MeshData {
 			0.0f, 1.0f, 0.0f,
 			0.0f, 1.0f, 0.0f,
 			0.0f, 1.0f, 0.0f
+		};
+		indices = new unsigned int[sizeI] {
+			36
 		};
 	}
 };

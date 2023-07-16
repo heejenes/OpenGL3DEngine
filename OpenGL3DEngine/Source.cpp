@@ -25,6 +25,7 @@
 #include "GameObject.h"
 #include "MeshData.h"
 #include "BoxData.h"
+#include "GrassData.h"
 
 #include "TerrainGenerator.h"
 
@@ -124,19 +125,54 @@ int main(int argc, char** argv) {
 	// -----------------------------
 	glEnable(GL_DEPTH_TEST);
 
+	// Set up backface culling
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+
 	glClearColor(0.3f, 0.3f, 0.6f, 0.f);
 	
 	std::vector<GameObject> allGameObjects;
 	std::vector<GameObject> allEmitters;
 	std::vector<Shader> allShaders;
 
+	Shader ourShader = Shader("vshader.glsl", "fshader.glsl");
+	allShaders.push_back(ourShader);
+	Shader flatShader = Shader("vshader.glsl", "flatColorFrag.glsl");
+	allShaders.push_back(flatShader);
+
+	std::vector<Vertex> grassVD;
+	GrassData grassData;
+
+	int ver = 0, tex = 0, norm = 0;
+	for (int i = 0; i < 17; i++) {
+		ver = i * 3;
+		norm = i * 3;
+		tex = i * 2;
+		grassVD.emplace_back(
+			Vertex(
+				grassData.vertices[ver],
+				grassData.vertices[ver + 1],
+				grassData.vertices[ver + 2],
+				0, 0, 0, 
+				0, 0,
+				144, 245, 66
+			)
+		);
+	}
+	Texture defaultTexture = Texture();
+	Mesh grassMesh = Mesh(grassVD, grassData.indices, grassData.sizeI, &defaultTexture);
+	Model grassModel(&grassMesh);
+	allGameObjects.push_back(
+		GameObject(&grassModel, &ourShader, Transform())
+	);
+
 	// Coordinates must be between -1 and 1 to appear on the screen. 
 	// This is called "normalized device coordinates (NDC)"
 	std::vector<Vertex> boxVertexData;
 	// each line of code is a 3d point, the three lines make a triangle
 	BoxData boxData;
-	
-	int ver, tex, norm;
+	ver = 0, tex = 0, norm = 0;
 	for (int i = 0; i < 36; i++) {
 		ver = i * 3;
 		norm = i * 3;
@@ -154,16 +190,8 @@ int main(int argc, char** argv) {
 			)
 		);
 	}
-	
-	std::vector<unsigned int> indices{36};
-
-	Shader ourShader = Shader("vshader.glsl", "fshader.glsl");
-	allShaders.push_back(ourShader);
-	Shader flatShader = Shader("vshader.glsl", "flatColorFrag.glsl");
-	allShaders.push_back(flatShader);
 
 	// world axis
-	Texture defaultTexture = Texture();
 	std::vector<Vertex> xAxisPoints;
 	xAxisPoints.emplace_back(-1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0);
 	xAxisPoints.emplace_back(1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0);
@@ -192,7 +220,7 @@ int main(int argc, char** argv) {
 	allGameObjects.push_back(zAxis);
 
 	Texture crateTexture("container.jpg");
-	Mesh cubeMesh = Mesh(boxVertexData, indices, &crateTexture);
+	Mesh cubeMesh = Mesh(boxVertexData, boxData.indices, boxData.sizeI, &crateTexture);
 	Model cubeModel(&cubeMesh);
 	std::vector<Transform> cubeTransforms {
 		Transform(glm::vec3(0.0f,  0.0f,  5.0f)),
@@ -233,7 +261,7 @@ int main(int argc, char** argv) {
 		glm::vec3(1.0f),
 		glm::vec4(1.0f, 1.f, 1.f, 0.f)
 	));
-	Mesh lightAMesh = Mesh(boxVertexData, indices, &crateTexture, lightAEmitter);
+	Mesh lightAMesh = Mesh(boxVertexData, boxData.indices, boxData.sizeI, &crateTexture, lightAEmitter);
 	Model lightAModel(&lightAMesh);
 	GameObject lightA(&lightAModel, &flatShader, Transform(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(0.3f))); 
 	//allGameObjects.push_back(lightA);
@@ -245,7 +273,7 @@ int main(int argc, char** argv) {
 		glm::vec3(1.0f),
 		glm::vec4(1.0f, 1.f, 1.f, 0.0f)
 	));
-	Mesh lightBMesh = Mesh(boxVertexData, indices, &crateTexture, lightBSun);
+	Mesh lightBMesh = Mesh(boxVertexData, boxData.indices, boxData.sizeI, &crateTexture, lightBSun);
 	Model lightBModel(&lightBMesh);
 	GameObject lightB(&lightBModel, &flatShader, Transform(glm::vec3(1.2f, 19.0f, 2.0f), glm::vec3(2.3f)));
 	allGameObjects.push_back(lightB);
