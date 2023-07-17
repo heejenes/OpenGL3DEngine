@@ -20,6 +20,7 @@
 #include "Callbacks.h"
 #include "Emitter.h"
 #include "Mesh.h"
+#include "GrassData.h"
 #include "Model.h"
 #include "Transform.h"
 #include "GameObject.h"
@@ -28,6 +29,7 @@
 #include "GrassData.h"
 
 #include "TerrainGenerator.h"
+#include "GrassGenerator.h"
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -131,6 +133,8 @@ int main(int argc, char** argv) {
 	glFrontFace(GL_CCW);
 
 	glClearColor(0.3f, 0.3f, 0.6f, 0.f);
+
+	srand(glfwGetTime());
 	
 	std::vector<GameObject> allGameObjects;
 	std::vector<GameObject> allEmitters;
@@ -140,39 +144,17 @@ int main(int argc, char** argv) {
 	allShaders.push_back(ourShader);
 	Shader flatShader = Shader("vshader.glsl", "flatColorFrag.glsl");
 	allShaders.push_back(flatShader);
+	Shader grassShader = Shader("grassVShader.glsl", "grassFShader.glsl");
+	allShaders.push_back(grassShader);
 
-	std::vector<Vertex> grassVD;
-	GrassData grassData;
-
-	int ver = 0, tex = 0, norm = 0;
-	for (int i = 0; i < 17; i++) {
-		ver = i * 3;
-		norm = i * 3;
-		tex = i * 2;
-		grassVD.emplace_back(
-			Vertex(
-				grassData.vertices[ver],
-				grassData.vertices[ver + 1],
-				grassData.vertices[ver + 2],
-				0, 0, 0, 
-				0, 0,
-				144, 245, 66
-			)
-		);
-	}
 	Texture defaultTexture = Texture();
-	Mesh grassMesh = Mesh(grassVD, grassData.indices, grassData.sizeI, &defaultTexture);
-	Model grassModel(&grassMesh);
-	allGameObjects.push_back(
-		GameObject(&grassModel, &ourShader, Transform())
-	);
 
 	// Coordinates must be between -1 and 1 to appear on the screen. 
 	// This is called "normalized device coordinates (NDC)"
 	std::vector<Vertex> boxVertexData;
 	// each line of code is a 3d point, the three lines make a triangle
 	BoxData boxData;
-	ver = 0, tex = 0, norm = 0;
+	int ver = 0, tex = 0, norm = 0;
 	for (int i = 0; i < 36; i++) {
 		ver = i * 3;
 		norm = i * 3;
@@ -241,21 +223,8 @@ int main(int argc, char** argv) {
 		);
 	}
 
-	// Terrain
-	TerrainGenerator gen = TerrainGenerator(
-		200,
-		200,
-		0.2f,
-		&ourShader, 
-		&defaultTexture,
-		&defaultTexture,
-		Transform()
-	);
-	GameObject terrain = gen.GetGameObject();
-	allGameObjects.push_back(terrain);
-	
-	
-	Emitter lightAEmitter(Light(
+
+	/*Emitter lightAEmitter(Light(
 		glm::vec3(0.1f),
 		glm::vec3(1.f),
 		glm::vec3(1.0f),
@@ -263,9 +232,9 @@ int main(int argc, char** argv) {
 	));
 	Mesh lightAMesh = Mesh(boxVertexData, boxData.indices, boxData.sizeI, &crateTexture, lightAEmitter);
 	Model lightAModel(&lightAMesh);
-	GameObject lightA(&lightAModel, &flatShader, Transform(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(0.3f))); 
-	//allGameObjects.push_back(lightA);
-	//allEmitters.push_back(lightA);
+	GameObject lightA(&lightAModel, &flatShader, Transform(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(0.3f)));
+	allGameObjects.push_back(lightA);
+	allEmitters.push_back(lightA);*/
 
 	Emitter lightBSun(Light(
 		glm::vec3(0.1f),
@@ -278,6 +247,24 @@ int main(int argc, char** argv) {
 	GameObject lightB(&lightBModel, &flatShader, Transform(glm::vec3(1.2f, 19.0f, 2.0f), glm::vec3(2.3f)));
 	allGameObjects.push_back(lightB);
 	allEmitters.push_back(lightB);
+
+	// Terrain
+	TerrainGenerator gen = TerrainGenerator(
+		200,
+		200,
+		0.2f,
+		&ourShader, 
+		&defaultTexture,
+		&defaultTexture
+	);
+	GameObject terrain = gen.GetGameObject();
+	allGameObjects.push_back(terrain);
+
+	// Grass
+	GrassGenerator grass = GrassGenerator(200, 200, 0.08f, 0.1f, 1.0f, &defaultTexture);
+	GameObject grassObject = grass.GenerateModelMatrices(gen, &grassShader);
+	allGameObjects.push_back(grassObject);
+
 
 	while (!glfwWindowShouldClose(window)) {
 

@@ -151,7 +151,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="GrassData.h" />
-    <ClInclude Include="grassGenerator.h" />
+    <ClInclude Include="GrassGenerator.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />

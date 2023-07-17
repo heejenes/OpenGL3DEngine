@@ -11,13 +11,13 @@ private:
 		glm::mat4 model = glm::mat4(1.0f);
 		// scale, translate, rotate
 		// local
-		model = glm::rotate(model, glm::radians(localOffset.angle), localOffset.rotationAxis);
 		model = glm::translate(model, localOffset.pos);
 		model = glm::scale(model, localOffset.scale);
+		model = glm::rotate(model, glm::radians(localOffset.angle), localOffset.rotationAxis);
 		// world pos
-		model = glm::rotate(model, glm::radians(transform.angle), transform.rotationAxis);
 		model = glm::translate(model, transform.pos);
 		model = glm::scale(model, transform.scale);
+		model = glm::rotate(model, glm::radians(transform.angle), transform.rotationAxis);
 		return model;
 	}
 public:
@@ -54,9 +54,6 @@ public:
 
 	void operator= (GameObject other) {
 		objModel = other.objModel;
-		for (Mesh* mesh : objModel->meshes) {
-			mesh->LoadVertexBuffers();
-		}
 		shader = other.shader;
 		transform = other.transform;
 		localOffset = other.localOffset;

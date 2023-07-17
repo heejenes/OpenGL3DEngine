@@ -5,8 +5,6 @@
 
 class TerrainGenerator {
 private:
-	int xSize, zSize;
-	float dist;
 	Shader* shader;
 	Transform globalTransform, localTransform;
 	Mesh waterMesh, landMesh;
@@ -29,9 +27,6 @@ private:
 
 		r = 83.f / 255.f, g = 255.f / 255.f, b = 56.f / 255.f;
 
-		const siv::PerlinNoise::seed_type seed = 123456u;
-		const siv::PerlinNoise perlin{ seed };
-
 		float centerXOffset = ((float)xSize) * dist * (-0.5f);
 		float centerZOffset = ((float)zSize) * dist * (-0.5f);
 		ny = 1.0f;
@@ -39,7 +34,7 @@ private:
 			for (int zz = 0; zz < zSize; zz++) {
 				x = ((float)xx) * dist;
 				if (noiseOn) {
-					y = perlin.normalizedOctave2D((float) xx * scale + xOffset, (float) zz * scale + zOffset, 2) * amplitude;
+					y = NoiseMap((float)xx, (float)zz);
 				}
 				else { y = 0; }
 				z = ((float)zz) * dist;
@@ -77,15 +72,15 @@ private:
 		return newMesh;
 	}
 public:
+	int xSize, zSize;
+	float dist;
 	TerrainGenerator(
 		int _x,
 		int _z,
 		float _dist,
 		Shader* _shader,
 		Texture* _waterTex,
-		Texture* _landTex,
-		Transform _transform = Transform(),
-		Transform _localOffset = Transform()
+		Texture* _landTex
 	) {
 		xSize = _x;
 		zSize = _z;
@@ -93,11 +88,17 @@ public:
 		shader = _shader;
 		waterTex = _waterTex;
 		landTex = _landTex;
-		globalTransform = _transform;
-		localTransform = _localOffset;
+		globalTransform = Transform();
+		localTransform = Transform();
 		
 
 		model = Model(1);
+	}
+	float NoiseMap(float a, float b) {
+		const siv::PerlinNoise::seed_type seed = 123456u;
+		const siv::PerlinNoise perlin{ seed };
+
+		return perlin.normalizedOctave2D(a * scale + xOffset, b * scale + zOffset, 2) * amplitude;
 	}
 	void GenerateLandMesh() {
 		landMesh = GenerateFlatMesh(landTex, true, 1.0f);
@@ -112,6 +113,7 @@ public:
 	GameObject GetGameObject() {
 		GenerateLandMesh();
 		//GenerateWaterMesh();
+		std::cout << glfwGetTime() << ": Terrain. VAO: " << model.meshes[0]->getVAO() << std::endl;
 		return GameObject(
 			&model,
 			shader,

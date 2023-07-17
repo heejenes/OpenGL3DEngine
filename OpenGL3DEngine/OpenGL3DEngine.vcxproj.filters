@@ -113,7 +113,7 @@
     <ClInclude Include="GrassData.h">
       <Filter>Assets\Meshes</Filter>
     </ClInclude>
-    <ClInclude Include="grassGenerator.h">
+    <ClInclude Include="GrassGenerator.h">
       <Filter>Header Files\TerrainGenerator</Filter>
     </ClInclude>
   </ItemGroup>

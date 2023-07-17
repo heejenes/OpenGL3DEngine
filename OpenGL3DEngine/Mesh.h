@@ -2,7 +2,7 @@
 
 
 class Mesh {
-private:
+protected:
 	unsigned int VBO = 0;
 	// points to VBO data already preconfigured with vertex attribute pointers. 
 	// Means that the attribute pointers must be configured only once for each
@@ -17,6 +17,11 @@ public:
 	std::vector<Vertex> vertexData;
 	std::vector<unsigned int> indices;
 	std::vector<Texture*> textures;
+
+	bool isInstanced = false;
+	std::vector<Vertex> vertexDataInstance;
+	std::vector<unsigned int> indicesInstance;
+
 	bool usesIndex;
 	Emitter emitter;
 	int stride = 12;
@@ -43,19 +48,36 @@ public:
 		unsigned int* _indices,
 		int indicesSize,
 		Texture* _texture,
-		Emitter _emitter = Emitter()
+		Emitter _emitter = Emitter(),
+		bool _isInstanced = false
 	) {
-		std::copy(_vertexData.begin(), _vertexData.end(), back_inserter(vertexData));
-		indices.clear();
-		indices.resize(indicesSize);
-		std::copy(_indices, _indices + indicesSize, indices.begin());
-		textures.push_back(_texture);
-		emitter = _emitter;
-		if (indices.size() == 1) {
-			usesIndex = false;
+		isInstanced = _isInstanced;
+		if (isInstanced) {
+			std::copy(_vertexData.begin(), _vertexData.end(), back_inserter(vertexDataInstance));
+			indicesInstance.clear();
+			indicesInstance.resize(indicesSize);
+			std::copy(_indices, _indices + indicesSize, indicesInstance.begin());
+			emitter = _emitter;
+			if (indicesInstance.size() == 1) {
+				usesIndex = false;
+			}
+			else {
+				usesIndex = true;
+			}
 		}
 		else {
-			usesIndex = true;
+			std::copy(_vertexData.begin(), _vertexData.end(), back_inserter(vertexData));
+			indices.clear();
+			indices.resize(indicesSize);
+			std::copy(_indices, _indices + indicesSize, indices.begin());
+			textures.push_back(_texture);
+			emitter = _emitter;
+			if (indices.size() == 1) {
+				usesIndex = false;
+			}
+			else {
+				usesIndex = true;
+			}
 		}
 	}
 	Mesh(
@@ -76,7 +98,12 @@ public:
 		}
 
 	}
-
+	unsigned int getEBO() {
+		return EBO;
+	}
+	unsigned int getVBO() {
+		return VBO;
+	}
 	unsigned int getVAO() {
 		return VAO;
 	}
@@ -98,54 +125,102 @@ public:
 		std::copy(_mesh.indices.begin(), _mesh.indices.end(), back_inserter(indices));
 		std::copy(_mesh.textures.begin(), _mesh.textures.end(), back_inserter(textures));
 		emitter = _mesh.emitter;
+		isInstanced = _mesh.isInstanced;
 		if (indices.size() == 1) {
 			usesIndex = false;
 		}
 		else {
 			usesIndex = true;
 		}
+		VAO = _mesh.getVAO();
+		EBO = _mesh.getEBO();
+		VBO = _mesh.getVBO();
 	}
 
 	void LoadVertexBuffers() {
-		glGenVertexArrays(1, &VAO);
-		glGenBuffers(1, &VBO);
-		glBindVertexArray(VAO);
+		if (isInstanced) {
+			glGenVertexArrays(1, &VAO);
+			glGenBuffers(1, &VBO);
+			glBindVertexArray(VAO);
 
-		// for EBO
-		if (usesIndex) {
-			glGenBuffers(1, &EBO);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+			// for EBO
+			if (usesIndex) {
+				glGenBuffers(1, &EBO);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+				glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesInstance.size() * sizeof(unsigned int), indicesInstance.data(), GL_STATIC_DRAW);
+			}
+
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			// copy the vertexData to the buffer.
+			// 4th parameter takes how GPU should manage data
+			// OPTIONS:
+			// GL_STREAM_DRAW: the data is set only once and used by the GPU at most a few times.
+			// GL_STATIC_DRAW: the data is set only once and used many times.
+			// GL_DYNAMIC_DRAW: the data is changed a lot and used many times.
+			glBufferData(GL_ARRAY_BUFFER, vertexDataInstance.size() * sizeof(Vertex), vertexDataInstance.data(), GL_STATIC_DRAW);
+
+			// Tell OpenGL how we've organized our vertices data (Looks at vertices data from the GL_ARRAY_BUFFER VBO)
+			// Arg 1: which vertex attribute to configure ("location = 0" from vertexShaderSource)
+			// Arg 2: size of vertex. 3 for x, y, z
+			// Arg 3: Type of data (x, y, z are floats)
+			// Arg 4: if we want data to be "normalized" (different from NDC, just ignore for now)
+			// Arg 5: stride (number of bits between vertices = 3*(size of float))
+			// Arg 6: "offset of where the position data begins in buffer" learn more later.
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(0);
+
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, Normal));
+			glEnableVertexAttribArray(1);
+
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, TexCoords));
+			glEnableVertexAttribArray(2);
+
+			glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, rgba));
+			glEnableVertexAttribArray(3);
+
+			glBindVertexArray(0);
 		}
+		else {
+			glGenVertexArrays(1, &VAO);
+			glGenBuffers(1, &VBO);
+			glBindVertexArray(VAO);
 
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		// copy the vertexData to the buffer.
-		// 4th parameter takes how GPU should manage data
-		// OPTIONS:
-		// GL_STREAM_DRAW: the data is set only once and used by the GPU at most a few times.
-		// GL_STATIC_DRAW: the data is set only once and used many times.
-		// GL_DYNAMIC_DRAW: the data is changed a lot and used many times.
-		glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(Vertex), vertexData.data(), GL_STATIC_DRAW);
+			// for EBO
+			if (usesIndex) {
+				glGenBuffers(1, &EBO);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+				glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+			}
 
-		// Tell OpenGL how we've organized our vertices data (Looks at vertices data from the GL_ARRAY_BUFFER VBO)
-		// Arg 1: which vertex attribute to configure ("location = 0" from vertexShaderSource)
-		// Arg 2: size of vertex. 3 for x, y, z
-		// Arg 3: Type of data (x, y, z are floats)
-		// Arg 4: if we want data to be "normalized" (different from NDC, just ignore for now)
-		// Arg 5: stride (number of bits between vertices = 3*(size of float))
-		// Arg 6: "offset of where the position data begins in buffer" learn more later.
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			// copy the vertexData to the buffer.
+			// 4th parameter takes how GPU should manage data
+			// OPTIONS:
+			// GL_STREAM_DRAW: the data is set only once and used by the GPU at most a few times.
+			// GL_STATIC_DRAW: the data is set only once and used many times.
+			// GL_DYNAMIC_DRAW: the data is changed a lot and used many times.
+			glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(Vertex), vertexData.data(), GL_STATIC_DRAW);
 
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, Normal));
-		glEnableVertexAttribArray(1);
+			// Tell OpenGL how we've organized our vertices data (Looks at vertices data from the GL_ARRAY_BUFFER VBO)
+			// Arg 1: which vertex attribute to configure ("location = 0" from vertexShaderSource)
+			// Arg 2: size of vertex. 3 for x, y, z
+			// Arg 3: Type of data (x, y, z are floats)
+			// Arg 4: if we want data to be "normalized" (different from NDC, just ignore for now)
+			// Arg 5: stride (number of bits between vertices = 3*(size of float))
+			// Arg 6: "offset of where the position data begins in buffer" learn more later.
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(0);
 
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, TexCoords));
-		glEnableVertexAttribArray(2);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, Normal));
+			glEnableVertexAttribArray(1);
 
-		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, rgba));
-		glEnableVertexAttribArray(3);
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, TexCoords));
+			glEnableVertexAttribArray(2);
 
-		glBindVertexArray(0);
+			glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)offsetof(Vertex, rgba));
+			glEnableVertexAttribArray(3);
+
+			glBindVertexArray(0);
+		}
 	}
 };

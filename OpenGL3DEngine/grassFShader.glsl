@@ -26,6 +26,7 @@ in float opacity;
 
 in vec3 Normal;
 in vec3 worldPos;
+in vec3 localPos;
 
 uniform Material material;
 uniform Light light;
@@ -72,6 +73,7 @@ void main()
     }
     ///////////////////////////////////////
 
-    vec3 lightResult = ambient + diffuse + specular;
-    FragColor = vec4(lightResult, 1.0) * vec4(objectColor, opacity);
+    vec3 lightResult = ambient;// + diffuse+ specular;
+    vec3 finalColor = vec3(objectColor.x, objectColor.y, objectColor.z) * max(0.1f, localPos.y - 1.f);
+    FragColor = vec4(lightResult * 0.05f, 1.0) * vec4(finalColor, opacity);
 }
