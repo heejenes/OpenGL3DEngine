@@ -8,6 +8,7 @@
 #include "Vertex.h"
 #include "GrassData.h"
 #include "Texture.h"
+#include "PerlinNoise.h"
 
 class GrassGenerator {
 private:
@@ -18,6 +19,14 @@ private:
 	float posVariance, sizeVariance, rotVariance;
 	int VAO;
 	glm::mat4* modelMatrices;
+	glm::vec3* windMap;
+
+	const siv::PerlinNoise::seed_type seed = 123456u;
+	const siv::PerlinNoise perlin{ seed };
+
+	float PerlinWind(float x, float y, float amp, float fre) {
+		return perlin.noise2D(fre * x, fre * y) * amp;
+	}
 public:
 	GrassGenerator(
 		int _xCount, 
@@ -37,7 +46,7 @@ public:
 		GrassData grassData;
 
 		int ver = 0, norm = 0;
-		for (int i = 0; i < 17; i++) {
+		for (int i = 0; i < (int) (grassData.sizeV / 3); i++) {
 			ver = i * 3;
 			norm = i * 3;
 			grassVD.emplace_back(
@@ -51,13 +60,13 @@ public:
 				)
 			);
 		}
-		ver = 0;
+		int ind = 0;
 		int a, b, c;
-		for (int i = 0; i < 30; i++) {
-			ver = i * 3;
-			a = grassData.indices[ver] * 3;
-			b = grassData.indices[ver + 1] * 3;
-			c = grassData.indices[ver + 2] * 3;
+		for (int i = 0; i < (int)(grassData.sizeI / 3); i++) {
+			ind = i * 3;
+			a = grassData.indices[ind] * 3;
+			b = grassData.indices[ind + 1] * 3;
+			c = grassData.indices[ind + 2] * 3;
 
 			glm::vec3 aa(
 				grassData.vertices[a],
@@ -79,9 +88,9 @@ public:
 				bb, 
 				cc
 			);
-			grassVD[grassData.indices[ver]].Normal = cross;
-			grassVD[grassData.indices[ver + 1]].Normal = cross;
-			grassVD[grassData.indices[ver + 2]].Normal = cross;
+			grassVD[grassData.indices[ind]].Normal = cross;
+			grassVD[grassData.indices[ind + 1]].Normal = cross;
+			grassVD[grassData.indices[ind + 2]].Normal = cross;
 		}
 		grassMesh = Mesh(grassVD, grassData.indices, grassData.sizeI, texture);
 	}
@@ -145,8 +154,7 @@ public:
 		glBindVertexArray(VAO);
 		// vertex attributes
 		std::size_t vec4Size = sizeof(glm::vec4);
-		std::size_t floatSize = sizeof(float);
-		std::size_t stride = vec4Size * 4 + floatSize * 3;
+		std::size_t stride = vec4Size * 4;
 		glEnableVertexAttribArray(4);
 		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, stride, (void*)0);
 		glEnableVertexAttribArray(5);
@@ -162,18 +170,44 @@ public:
 		glVertexAttribDivisor(7, 1);
 
 		///////////////////////////////////////////////////////////
+		windMap = new glm::vec3[(xCount * zCount)];
+		float baseFreq = 1;
 
-		unsigned int buffer;
+		i = 0;
+		for (int x = 0; x < xCount; x++) {
+			for (int z = 0; z < zCount; z++) {
+				glm::vec3 temp(
+					PerlinWind(x, z, 0.001f, 0.05f),
+					baseFreq + 0.5f * PerlinWind(x, z, 0.1f, 0.05f),
+					0.5f + 0.5f * perlin.normalizedOctave2D((float)x * 100.f, (float)z * 100.f, 4)
+				);
+				windMap[i] = temp;
+				i++;
+			}
+		}
+
+		std::size_t floatSize = sizeof(float);
+		std::size_t vec3Size = sizeof(glm::vec3);
+		stride = vec3Size;
 		glGenBuffers(1, &buffer);
 		glBindBuffer(GL_ARRAY_BUFFER, buffer);
-		glBufferData(GL_ARRAY_BUFFER, xCount * zCount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, (xCount * zCount * vec3Size), &windMap[0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(8);
-		glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, stride, (void*)(4 * vec4Size));
+		glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, stride, (void*)(offsetof(glm::vec3, x)));
 		glEnableVertexAttribArray(9);
-		glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, stride, (void*)(4 * vec4Size + floatSize * 2));
+		glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, stride, (void*)(offsetof(glm::vec3, y)));
+		glEnableVertexAttribArray(10);
+		glVertexAttribPointer(10, 1, GL_FLOAT, GL_FALSE, stride, (void*)(offsetof(glm::vec3, z)));
+
+		glVertexAttribDivisor(8, 1);
+		glVertexAttribDivisor(9, 1);
+		glVertexAttribDivisor(10, 1);
 
 		glBindVertexArray(0);
 		return tempGrassModel;
+	}
+	~GrassGenerator() {
+		windMap; //TODO
 	}
 };

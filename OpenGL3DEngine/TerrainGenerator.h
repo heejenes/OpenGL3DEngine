@@ -16,6 +16,8 @@ private:
 	float scale = 0.01f;
 	float amplitude = 5.0f;
 	float xOffset, zOffset = 0.0f;
+	const siv::PerlinNoise::seed_type seed = 123456u;
+	const siv::PerlinNoise perlin{ seed };
 
 	Mesh GenerateFlatMesh(Texture* tex, bool noiseOn, float opacity) {
 		std::vector<Vertex> vertexData;
@@ -90,14 +92,10 @@ public:
 		landTex = _landTex;
 		globalTransform = Transform();
 		localTransform = Transform();
-		
 
 		model = Model(1);
 	}
 	float NoiseMap(float a, float b) {
-		const siv::PerlinNoise::seed_type seed = 123456u;
-		const siv::PerlinNoise perlin{ seed };
-
 		return perlin.normalizedOctave2D(a * scale + xOffset, b * scale + zOffset, 2) * amplitude;
 	}
 	void GenerateLandMesh() {

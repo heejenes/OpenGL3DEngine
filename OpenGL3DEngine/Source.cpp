@@ -31,8 +31,8 @@
 #include "TerrainGenerator.h"
 #include "GrassGenerator.h"
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -265,7 +265,7 @@ int main(int argc, char** argv) {
 	GameObject grassObject = grass.GenerateModelMatrices(&gen, &grassShader);
 	allGameObjects.push_back(grassObject);
 
-
+	std::cout << "Starting!" << std::endl;
 	while (!glfwWindowShouldClose(window)) {
 
 		float currentFrame = glfwGetTime();

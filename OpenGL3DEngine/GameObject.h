@@ -80,6 +80,8 @@ public:
 				glBindTexture(GL_TEXTURE_2D, mesh->textures[i]->id);
 			}
 
+			shader->setFloat("time", glfwGetTime());
+
 			genAndAssignModelMatrix();
 			
 			shader->setVec3("light.ambient", light.ambient);

@@ -25,8 +25,8 @@ in vec3 objectColor;
 in float opacity;
 
 in vec3 Normal;
-in vec3 worldPos;
-in vec3 localPos;
+in vec4 worldPos;
+in vec4 localPos;
 
 uniform Material material;
 uniform Light light;
@@ -42,8 +42,8 @@ void main()
     vec3 N = normalize(Normal);
     vec3 lightDir3;
     // if point light
-    if (light.lightDir.w == 0.0)
-        lightDir3 = normalize(light.position - worldPos);
+    if (light.lightDir.w == 0.0f)
+        lightDir3 = normalize(light.position - worldPos.xyz);
     else  // if sun light
         lightDir3 = normalize(light.lightDir.xyz);
     // diffuse color is 0 if angle is past 90 degrees
@@ -52,19 +52,19 @@ void main()
     /////////////////////////////////////
 
     // specular
-    float specularStrength = 0.5;
-    vec3 viewDir = normalize(viewPos - worldPos);
+    float specularStrength = 0.1f;
+    vec3 viewDir = normalize(viewPos - worldPos.xyz);
     vec3 reflectDir = reflect(-lightDir3, N);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec3 specular = light.specular * (spec * material.specular);  
     ///////////////////////////////////////
 
     // attenuation
-    if (light.lightDir.w == 0.0) {
+    if (light.lightDir.w == 0.0f) {
         float distance;
         float attenuation; 
-        distance = length(light.position - worldPos);
-        attenuation = 1.0 / (light.constant + light.linear * distance + 
+        distance = length(light.position - worldPos.xyz);
+        attenuation = 1.0f / (light.constant + light.linear * distance + 
             light.quadratic * (distance * distance)); 
             
         ambient *= attenuation;  
@@ -73,7 +73,7 @@ void main()
     }
     ///////////////////////////////////////
 
-    vec3 lightResult = ambient;// + diffuse+ specular;
-    vec3 finalColor = vec3(objectColor.x, objectColor.y, objectColor.z) * max(0.1f, localPos.y - 1.f);
-    FragColor = vec4(lightResult * 0.05f, 1.0) * vec4(finalColor, opacity);
+    vec3 lightResult = ambient + 0.01f * diffuse + 0.01f * specular;
+    vec3 finalColor = vec3(objectColor.x, objectColor.y, objectColor.z);// * min(max(0.2f, localPos.y - 0.5f), 0.8f);
+    FragColor = vec4(lightResult, 1.0f) * vec4(finalColor, opacity);
 }
