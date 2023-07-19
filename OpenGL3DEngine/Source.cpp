@@ -262,7 +262,7 @@ int main(int argc, char** argv) {
 
 	// Grass
 	GrassGenerator grass = GrassGenerator(200, 200, 0.08f, 0.1f, 1.0f, &defaultTexture);
-	GameObject grassObject = grass.GenerateModelMatrices(gen, &grassShader);
+	GameObject grassObject = grass.GenerateModelMatrices(&gen, &grassShader);
 	allGameObjects.push_back(grassObject);
 
 

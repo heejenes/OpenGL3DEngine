@@ -85,7 +85,7 @@ public:
 		}
 		grassMesh = Mesh(grassVD, grassData.indices, grassData.sizeI, texture);
 	}
-	GameObject GenerateModelMatrices(TerrainGenerator terrain, Shader* shader) {
+	GameObject GenerateModelMatrices(TerrainGenerator* terrain, Shader* shader) {
 		grassModel = Model(&grassMesh);
 		GameObject tempGrassModel(
 			&grassModel,
@@ -98,9 +98,9 @@ public:
 			zCount
 		);
 
-		int terX = terrain.xSize;
-		int terZ = terrain.zSize;
-		float terDist = terrain.dist;
+		int terX = terrain->xSize;
+		int terZ = terrain->zSize;
+		float terDist = terrain->dist;
 
 		modelMatrices = new glm::mat4[(xCount * zCount)];
 		int i = 0;
@@ -117,7 +117,7 @@ public:
 				Transform temp(
 					glm::vec3(
 						worldX + GetRand() * posVariance,
-						terrain.NoiseMap(
+						terrain->NoiseMap(
 							(float)x * ((float)(terX - 1) / (float)(xCount - 1)),
 							(float)z * ((float)(terZ - 1) / (float)(zCount - 1))
 						) + std::abs(GetRand()) * posVariance * sizeVariance, // GET HEIGHT USING THE SAME NOISE FUNCTION AS THE TERRAIN
@@ -145,19 +145,33 @@ public:
 		glBindVertexArray(VAO);
 		// vertex attributes
 		std::size_t vec4Size = sizeof(glm::vec4);
+		std::size_t floatSize = sizeof(float);
+		std::size_t stride = vec4Size * 4 + floatSize * 3;
 		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, stride, (void*)0);
 		glEnableVertexAttribArray(5);
-		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(1 * vec4Size));
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, stride, (void*)(1 * vec4Size));
 		glEnableVertexAttribArray(6);
-		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * vec4Size));
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, stride, (void*)(2 * vec4Size));
 		glEnableVertexAttribArray(7);
-		glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size));
+		glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, stride, (void*)(3 * vec4Size));
 
 		glVertexAttribDivisor(4, 1);
 		glVertexAttribDivisor(5, 1);
 		glVertexAttribDivisor(6, 1);
 		glVertexAttribDivisor(7, 1);
+
+		///////////////////////////////////////////////////////////
+
+		unsigned int buffer;
+		glGenBuffers(1, &buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, buffer);
+		glBufferData(GL_ARRAY_BUFFER, xCount * zCount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(8);
+		glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, stride, (void*)(4 * vec4Size));
+		glEnableVertexAttribArray(9);
+		glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, stride, (void*)(4 * vec4Size + floatSize * 2));
 
 		glBindVertexArray(0);
 		return tempGrassModel;

@@ -5,6 +5,8 @@ layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoord;
 layout (location = 3) in vec4 aColor; 
 layout (location = 4) in mat4 instanceMatrix;
+layout (location = 8) in vec2 windDir;
+layout (location = 9) in float windStrength;
   
 out vec3 objectColor; // output a color to the fragment shader
 out float opacity;
