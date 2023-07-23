@@ -77,12 +77,12 @@ public:
 	int xSize, zSize;
 	float dist;
 	TerrainGenerator(
-		int _x,
-		int _z,
-		float _dist,
-		Shader* _shader,
-		Texture* _waterTex,
-		Texture* _landTex
+		int _x = 3,
+		int _z = 3,
+		float _dist = 1.f,
+		Shader* _shader = nullptr,
+		Texture* _waterTex = nullptr,
+		Texture* _landTex = nullptr
 	) {
 		xSize = _x;
 		zSize = _z;

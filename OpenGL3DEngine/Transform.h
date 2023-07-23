@@ -26,11 +26,10 @@ public:
 		return model;
 	}
 
-	glm::mat4 genScaleRotateModelMatrix() {
+	glm::mat4 genRotateModelMatrix() {
 		glm::mat4 model = glm::mat4(1.0f);
 		// scale, translate, rotate
 		// local
-		model = glm::scale(model, scale);
 		model = glm::rotate(model, glm::radians(angle), rotationAxis);
 		return model;
 	}

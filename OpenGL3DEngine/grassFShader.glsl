@@ -73,7 +73,7 @@ void main()
     }
     ///////////////////////////////////////
 
-    vec3 lightResult = ambient + 0.01f * diffuse + specular;
-    vec3 finalColor = vec3(objectColor.x, objectColor.y, objectColor.z);// * min(max(0.2f, localPos.y - 0.5f), 0.8f);
+    vec3 lightResult = ambient + 0.01f * diffuse + 0.05f * specular;
+    vec3 finalColor = vec3(objectColor.x, objectColor.y, objectColor.z) * min(max(0.2f, localPos.y - 0.5f), 0.8f);
     FragColor = vec4(lightResult, 1.0f) * vec4(finalColor, opacity);
 }

@@ -5,7 +5,8 @@ enum Camera_Movement {
 	BACKWARD,
 	LEFT,
 	RIGHT,
-	UP
+	UP,
+	DOWN
 };
 
 class Camera {
@@ -13,6 +14,7 @@ public:
 	glm::vec3 cameraPos;
 	glm::vec3 cameraDirection;
 	glm::vec3 cameraUp;
+	glm::vec3 cameraForward;
 	glm::vec3 cameraRight;
 	float aspectRatio, near, far;
 	// euler Angles
@@ -55,6 +57,7 @@ public:
 		// also re-calculate the Right and Up vector
 		cameraRight = glm::normalize(glm::cross(cameraDirection, glm::vec3(0.0f, 1.0f, 0.0f)));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
 		cameraUp = glm::normalize(glm::cross(cameraRight, cameraDirection));
+		cameraForward = glm::normalize(glm::cross(glm::vec3(0, 1.0f, 0), cameraRight));
 	}
 	void updateConfig(
 		float _aspectRatio,
@@ -93,15 +96,17 @@ public:
 	{
 		float velocity = MovementSpeed * deltaTime;
 		if (direction == FORWARD)
-			cameraPos += cameraDirection * velocity;
+			cameraPos += cameraForward * velocity;
 		if (direction == BACKWARD)
-			cameraPos -= cameraDirection * velocity;
+			cameraPos -= cameraForward * velocity;
 		if (direction == LEFT)
 			cameraPos -= cameraRight * velocity;
 		if (direction == RIGHT)
 			cameraPos += cameraRight * velocity;
 		if (direction == UP)
-			cameraPos += glm::vec3(0.0f, 1.0f, 0.0f) * velocity;
+			cameraPos += glm::vec3(0, 1.f, 0) * velocity;
+		if (direction == DOWN)
+			cameraPos -= glm::vec3(0, 1.f, 0) * velocity;
 	}
 
 	// processes input received from a mouse input system. Expects the offset value in both the x and y direction.

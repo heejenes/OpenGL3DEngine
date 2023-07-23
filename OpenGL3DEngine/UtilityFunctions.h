@@ -27,7 +27,7 @@ float GetRand() {
 glm::vec3 CrossProduct(glm::vec3 a, glm::vec3 b, glm::vec3 c) {
 	glm::vec3 aa = a - c;
 	glm::vec3 bb = b - c;
-	return glm::cross(aa, bb);
+	return glm::normalize(glm::cross(aa, bb));
 }
 
 #ifdef _DEBUG

@@ -21,6 +21,7 @@ private:
 	glm::mat4* modelMatrices;
 	glm::vec3* windMap;
 	glm::vec3* translationMap;
+	glm::vec3* scaleMap;
 
 	const siv::PerlinNoise::seed_type seed = 123456u;
 	const siv::PerlinNoise perlin{ seed };
@@ -30,12 +31,12 @@ private:
 	}
 public:
 	GrassGenerator(
-		int _xCount, 
-		int _zCount, 
-		float _posV, 
-		float _sizeV,
-		float _rotV,
-		Texture* texture
+		int _xCount = 3, 
+		int _zCount = 3, 
+		float _posV = 0.08f,
+		float _sizeV = 0.2f,
+		float _rotV = 1.0f,
+		Texture* texture = nullptr
 	) {
 		xCount = _xCount;
 		zCount = _zCount;
@@ -114,6 +115,7 @@ public:
 
 		modelMatrices = new glm::mat4[(xCount * zCount)];
 		translationMap = new glm::vec3[(xCount * zCount)];
+		scaleMap = new glm::vec3[(xCount * zCount)];
 
 		int i = 0;
 		float worldX = 0.f, worldZ = 0.f;
@@ -144,8 +146,9 @@ public:
 					GetRand() * 180.f * rotVariance
 				);
 
-				modelMatrices[i] = temp.genScaleRotateModelMatrix();
+				modelMatrices[i] = temp.genRotateModelMatrix();
 				translationMap[i] = temp.pos;
+				scaleMap[i] = temp.scale;
 				i++;
 			}
 		}
@@ -217,6 +220,14 @@ public:
 		glEnableVertexAttribArray(11);
 		glVertexAttribPointer(11, 3, GL_FLOAT, GL_FALSE, stride, (void*)(offsetof(glm::vec3, x)));
 		glVertexAttribDivisor(11, 1);
+
+		glGenBuffers(1, &buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, buffer);
+		glBufferData(GL_ARRAY_BUFFER, (xCount * zCount * vec3Size), &scaleMap[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(12);
+		glVertexAttribPointer(12, 3, GL_FLOAT, GL_FALSE, stride, (void*)(offsetof(glm::vec3, x)));
+		glVertexAttribDivisor(12, 1);
 
 		glBindVertexArray(0);
 		return tempGrassModel;

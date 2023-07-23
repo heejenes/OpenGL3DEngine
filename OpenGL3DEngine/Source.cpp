@@ -74,6 +74,8 @@ void processInput(GLFWwindow* window, Camera* camera) {
 		camera->ProcessKeyboard(RIGHT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 		camera->ProcessKeyboard(UP, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+		camera->ProcessKeyboard(DOWN, deltaTime);
 }
 
 
@@ -244,7 +246,7 @@ int main(int argc, char** argv) {
 	));
 	Mesh lightBMesh = Mesh(boxVertexData, boxData.indices, boxData.sizeI, &crateTexture, lightBSun);
 	Model lightBModel(&lightBMesh);
-	GameObject lightB(&lightBModel, &flatShader, Transform(glm::vec3(1.2f, 19.0f, 2.0f), glm::vec3(2.3f)));
+	GameObject lightB(&lightBModel, &flatShader, Transform(glm::vec3(35.2f, 10.0f, 2.0f), glm::vec3(2.3f)));
 	allGameObjects.push_back(lightB);
 	allEmitters.push_back(lightB);
 
@@ -261,7 +263,7 @@ int main(int argc, char** argv) {
 	allGameObjects.push_back(terrain);
 
 	// Grass
-	GrassGenerator grass = GrassGenerator(200, 200, 0.08f, 0.1f, 1.0f, &defaultTexture);
+	GrassGenerator grass = GrassGenerator(200, 200, 0.08f, 0.2f, 1.0f, &defaultTexture);
 	GameObject grassObject = grass.GenerateModelMatrices(&gen, &grassShader);
 	allGameObjects.push_back(grassObject);
 
