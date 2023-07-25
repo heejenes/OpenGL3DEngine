@@ -13,9 +13,8 @@ private:
 	Texture* landTex;
 
 	// NOISE SETTINGS
-	float scale = 0.01f;
-	float amplitude = 5.0f;
-	float xOffset, zOffset = 0.0f;
+	float scale = 0.04f;
+	float amplitude = 10.0f;
 	const siv::PerlinNoise::seed_type seed = 123456u;
 	const siv::PerlinNoise perlin{ seed };
 
@@ -27,10 +26,10 @@ private:
 		float s = 0.0f, t = 0.0f;
 		float r = 0.0f, g = 0.0f, b = 0.0f;
 
-		r = 83.f / 255.f, g = 255.f / 255.f, b = 56.f / 255.f;
+		r = 5.f / 255.f, g = 36.f / 255.f, b = 7.f / 255.f;
 
-		float centerXOffset = ((float)xSize) * dist * (-0.5f);
-		float centerZOffset = ((float)zSize) * dist * (-0.5f);
+		float centerXOffset = ((float)xSize - 1.f) * dist * (-0.5f) + chunkOffset.x * ((float)xSize - 1.f) * dist;
+		float centerZOffset = ((float)zSize - 1.f) * dist * (-0.5f) + chunkOffset.y * ((float)zSize - 1.f) * dist;
 		ny = 1.0f;
 		for (int xx = 0; xx < xSize; xx++) {
 			for (int zz = 0; zz < zSize; zz++) {
@@ -75,11 +74,14 @@ private:
 	}
 public:
 	int xSize, zSize;
+	glm::vec2 chunkOffset;
+	glm::vec3 center;
 	float dist;
 	TerrainGenerator(
 		int _x = 3,
 		int _z = 3,
 		float _dist = 1.f,
+		glm::vec2 offset = glm::vec2(0, 0),
 		Shader* _shader = nullptr,
 		Texture* _waterTex = nullptr,
 		Texture* _landTex = nullptr
@@ -87,16 +89,36 @@ public:
 		xSize = _x;
 		zSize = _z;
 		dist = _dist;
+		chunkOffset = offset;
 		shader = _shader;
 		waterTex = _waterTex;
 		landTex = _landTex;
+		center = glm::vec3(((float)_x * _dist) * offset.x, 0, ((float)_z * _dist) * offset.y);
 		globalTransform = Transform();
 		localTransform = Transform();
 
 		model = Model(1);
 	}
+	void SetVars(
+		int _x = 3,
+		int _z = 3,
+		float _dist = 1.f,
+		glm::vec2 offset = glm::vec2(0, 0),
+		Shader* _shader = nullptr,
+		Texture* _waterTex = nullptr,
+		Texture* _landTex = nullptr
+	) {
+		xSize = _x;
+		zSize = _z;
+		dist = _dist;
+		chunkOffset = offset;
+		center = glm::vec3(((float)_x * _dist) * offset.x, 0, ((float)_z * _dist) * offset.y);
+		shader = _shader;
+		waterTex = _waterTex;
+		landTex = _landTex;
+	}
 	float NoiseMap(float a, float b) {
-		return perlin.normalizedOctave2D(a * scale + xOffset, b * scale + zOffset, 2) * amplitude;
+		return perlin.normalizedOctave2D((a + chunkOffset.x * ((float)xSize - 1.f)) * scale, (b + chunkOffset.y * ((float)zSize - 1.f)) * scale, 2) * amplitude;
 	}
 	void GenerateLandMesh() {
 		landMesh = GenerateFlatMesh(landTex, true, 1.0f);
@@ -111,12 +133,12 @@ public:
 	GameObject GetGameObject() {
 		GenerateLandMesh();
 		//GenerateWaterMesh();
-		std::cout << glfwGetTime() << ": Terrain. VAO: " << model.meshes[0]->getVAO() << std::endl;
 		return GameObject(
 			&model,
 			shader,
 			globalTransform, 
-			localTransform
+			localTransform,
+			center
 		);
 	}
 };

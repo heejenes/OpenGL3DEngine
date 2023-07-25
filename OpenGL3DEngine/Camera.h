@@ -26,6 +26,9 @@ public:
 	// fovY in degrees
 	float Zoom = 45.0f;
 
+	glm::vec2 localCorner;
+	glm::vec3 N, S, W, E;
+
 	Camera(
 		glm::vec3 _cameraPos = glm::vec3(0.0f, 0.0f, 3.0f),
 		float _aspectRatio = 800.0f / 600.0f,
@@ -36,16 +39,50 @@ public:
 		Yaw = 90.0f;
 		Pitch = 0.0f;
 		cameraPos = _cameraPos;
+		localCorner = glm::vec2(
+			2.f * glm::tan(glm::atan(_aspectRatio * glm::tan(glm::radians(Zoom)))),
+			2.f * glm::tan(glm::radians(Zoom))
+		);
 		updateCameraVectors();
 		updateConfig(_aspectRatio, _near, _far, _Zoom);
 	}
 	void updateCamera(std::vector<Shader> allShaders) {
+
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, glm::radians(Pitch), cameraRight);
+		model = glm::rotate(model, glm::radians(Yaw - 90.f), glm::vec3(0, -1, 0));
+
+		glm::vec3 NE, SE, SW, NW;
+		NE = glm::vec3(model * glm::vec4(-localCorner.x, localCorner.y, 2.f, 1.f));
+		NW = glm::vec3(model * glm::vec4(localCorner.x, localCorner.y, 2.f, 1.f));
+		SE = glm::vec3(model * glm::vec4(-localCorner.x, -localCorner.y, 2.f, 1.f));
+		SW = glm::vec3(model * glm::vec4(localCorner.x, -localCorner.y, 2.f, 1.f));
+
+		N = glm::cross(NE, NW);
+		S = glm::cross(SW, SE);
+		W = glm::cross(NW, SW);
+		E = glm::cross(SE, NE);
+
 		for (Shader shader : allShaders) {
 			shader.use();
 			shader.setVec3("viewPos", cameraPos);
 			genViewMatrix(shader);
 			genProjMatrix(shader);
 		}
+	}
+	bool IsInFrustum(glm::vec3 pos) {
+		glm::vec3 localPos = pos - cameraPos;
+		float margin = 0.f;
+		// if inside
+		if (glm::dot(localPos, N) < margin && glm::dot(localPos, S) < margin
+			&& glm::dot(localPos, N) < margin && glm::dot(localPos, S) < margin) {
+			return true;
+			float dist = glm::dot(localPos, localPos);
+			if (dist > near - margin && dist < far + margin) {
+				return true;
+			}
+		}
+		return false;
 	}
 	void updateCameraVectors() {
 		// calculate the new Front vector
@@ -72,10 +109,6 @@ public:
 	}
 	void genViewMatrix(Shader ourShader) {
 		glm::mat4 view = glm::mat4(1.0f);
-
-		const float radius = 10.0f;
-		float camX = sin(glfwGetTime()) * radius;
-		float camZ = cos(glfwGetTime()) * radius;
 
 		// note that we're translating the scene in the reverse direction of where we want to move
 		view = glm::lookAt(cameraPos, cameraPos + cameraDirection, cameraUp);

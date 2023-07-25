@@ -58,7 +58,7 @@ public:
 					grassData.vertices[ver + 2],
 					0, 0, 0,
 					0, 0,
-					144, 245, 66
+					144.f / 255.f, 245.f / 255.f, 66.f / 255.f
 				)
 			);
 		}
@@ -96,22 +96,92 @@ public:
 		}
 		grassMesh = Mesh(grassVD, grassData.indices, grassData.sizeI, texture);
 	}
+	void SetVars(
+		int _xCount = 3,
+		int _zCount = 3,
+		float _posV = 0.08f,
+		float _sizeV = 0.2f,
+		float _rotV = 1.0f,
+		Texture* texture = nullptr
+	) {
+		xCount = _xCount;
+		zCount = _zCount;
+		posVariance = _posV;
+		sizeVariance = _sizeV;
+		rotVariance = _rotV;
+
+		std::vector<Vertex> grassVD;
+		GrassData grassData;
+
+		int ver = 0, norm = 0;
+		for (int i = 0; i < (int)(grassData.sizeV / 3); i++) {
+			ver = i * 3;
+			norm = i * 3;
+			grassVD.emplace_back(
+				Vertex(
+					grassData.vertices[ver],
+					grassData.vertices[ver + 1],
+					grassData.vertices[ver + 2],
+					0, 0, 0,
+					0, 0,
+					144.f / 255.f, 245.f / 255.f, 66.f / 255.f
+				)
+			);
+		}
+		int ind = 0;
+		int a, b, c;
+		for (int i = 0; i < (int)(grassData.sizeI / 3); i++) {
+			ind = i * 3;
+			a = grassData.indices[ind] * 3;
+			b = grassData.indices[ind + 1] * 3;
+			c = grassData.indices[ind + 2] * 3;
+
+			glm::vec3 aa(
+				grassData.vertices[a],
+				grassData.vertices[a + 1],
+				grassData.vertices[a + 2]
+			);
+			glm::vec3 bb(
+				grassData.vertices[b],
+				grassData.vertices[b + 1],
+				grassData.vertices[b + 2]
+			);
+			glm::vec3 cc(
+				grassData.vertices[c],
+				grassData.vertices[c + 1],
+				grassData.vertices[c + 2]
+			);
+			glm::vec3 cross = CrossProduct(
+				aa,
+				bb,
+				cc
+			);
+			grassVD[grassData.indices[ind]].Normal = cross;
+			grassVD[grassData.indices[ind + 1]].Normal = cross;
+			grassVD[grassData.indices[ind + 2]].Normal = cross;
+		}
+		grassMesh = Mesh(grassVD, grassData.indices, grassData.sizeI, texture);
+	}
+
 	GameObject GenerateModelMatrices(TerrainGenerator* terrain, Shader* shader) {
 		grassModel = Model(&grassMesh);
+
+		int terX = terrain->xSize - 1;
+		int terZ = terrain->zSize - 1;
+		glm::vec2 off = terrain->chunkOffset;
+		float terDist = terrain->dist;
+
 		GameObject tempGrassModel(
 			&grassModel,
 			shader,
 			Transform(),
 			Transform(),
+			glm::vec3(((float)terX * terDist) * off.x, 0, ((float)terZ * terDist) * off.y),
 			4,
 			true,
 			xCount,
 			zCount
 		);
-
-		int terX = terrain->xSize;
-		int terZ = terrain->zSize;
-		float terDist = terrain->dist;
 
 		modelMatrices = new glm::mat4[(xCount * zCount)];
 		translationMap = new glm::vec3[(xCount * zCount)];
@@ -130,12 +200,12 @@ public:
 				worldZ = az * (float)z + bz;
 				Transform temp(
 					glm::vec3(
-						worldX + GetRand() * posVariance,
+						worldX + GetRand() * posVariance + ((float)terX * terDist) * off.x,
 						terrain->NoiseMap(
-							(float)x * ((float)(terX - 1) / (float)(xCount - 1)),
-							(float)z * ((float)(terZ - 1) / (float)(zCount - 1))
+							(float)x * ((float)(terX) / (float)(xCount - 1)),
+							(float)z * ((float)(terZ) / (float)(zCount - 1))
 						) + std::abs(GetRand()) * posVariance * sizeVariance, // GET HEIGHT USING THE SAME NOISE FUNCTION AS THE TERRAIN
-						worldZ + GetRand() * posVariance
+						worldZ + GetRand() * posVariance + ((float)terZ * terDist) * off.y
 					),
 					glm::vec3(
 						1.f + GetRand() * sizeVariance * 2,
@@ -230,6 +300,7 @@ public:
 		glVertexAttribDivisor(12, 1);
 
 		glBindVertexArray(0);
+
 		return tempGrassModel;
 	}
 	~GrassGenerator() {

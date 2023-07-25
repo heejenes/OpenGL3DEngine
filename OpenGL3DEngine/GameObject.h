@@ -25,6 +25,7 @@ public:
 	// world pos
 	Transform transform;
 	Transform localOffset;
+	glm::vec3 center;
 	Shader* shader;
 	int drawType;
 	bool isInstanced;
@@ -34,6 +35,7 @@ public:
 		Shader* _shader,
 		Transform _transform = Transform(),
 		Transform _localOffset = Transform(),
+		glm::vec3 _center = glm::vec3(0),
 		int _drawType = GL_TRIANGLES,
 		bool _isInstanced = false,
 		int _instanceWidth = 0,
@@ -46,6 +48,12 @@ public:
 		shader = _shader;
 		transform = _transform;
 		localOffset = _localOffset;
+		if (_center == glm::vec3(0)) {
+			center = _transform.pos;
+		}
+		else {
+			center = _center;
+		}
 		drawType = _drawType;
 		isInstanced = _isInstanced;
 		instanceWidth = _instanceWidth;
@@ -57,6 +65,12 @@ public:
 		shader = other.shader;
 		transform = other.transform;
 		localOffset = other.localOffset;
+		if (other.center == glm::vec3(0)) {
+			center = transform.pos;
+		}
+		else {
+			center = other.center;
+		}
 		drawType = other.drawType;
 	}
 

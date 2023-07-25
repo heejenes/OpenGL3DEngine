@@ -2,7 +2,7 @@
 #include "MeshData.h"
 
 struct GrassData : MeshData {
-	float sizeX = 0.1f;
+	float sizeX = 0.08f;
 	float sizeZ = 0.02f;
 	float height = 0.6f;
 	GrassData() {

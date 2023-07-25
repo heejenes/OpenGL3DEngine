@@ -28,8 +28,7 @@
 #include "BoxData.h"
 #include "GrassData.h"
 
-#include "TerrainGenerator.h"
-#include "GrassGenerator.h"
+#include "Chunk.h"
 
 const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
@@ -39,7 +38,10 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 // camera
 
-Camera camera = Camera();
+Camera camera = Camera(
+	glm::vec3(0, 5, 0),
+	(float)SCR_WIDTH / (float)SCR_HEIGHT
+);
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -130,7 +132,7 @@ int main(int argc, char** argv) {
 	glEnable(GL_DEPTH_TEST);
 
 	// Set up backface culling
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
@@ -182,7 +184,7 @@ int main(int argc, char** argv) {
 	std::vector<unsigned int> xAxisIndices{ 2 };
 	Mesh xAxisMesh = Mesh(xAxisPoints, xAxisIndices, &defaultTexture);
 	Model xAxisModel(&xAxisMesh);
-	GameObject xAxis(&xAxisModel, &flatShader, Transform(), Transform(), GL_LINES);
+	GameObject xAxis(&xAxisModel, &flatShader, Transform(), Transform(), glm::vec3(0), GL_LINES);
 	allGameObjects.push_back(xAxis);
 
 	std::vector<Vertex> yAxisPoints;
@@ -191,7 +193,7 @@ int main(int argc, char** argv) {
 	std::vector<unsigned int> yAxisIndices{ 2 };
 	Mesh yAxisMesh = Mesh(yAxisPoints, yAxisIndices, &defaultTexture);
 	Model yAxisModel(&yAxisMesh);
-	GameObject yAxis(&yAxisModel, &flatShader, Transform(), Transform(), GL_LINES);
+	GameObject yAxis(&yAxisModel, &flatShader, Transform(), Transform(), glm::vec3(0), GL_LINES);
 	allGameObjects.push_back(yAxis);
 
 	std::vector<Vertex> zAxisPoints;
@@ -200,7 +202,7 @@ int main(int argc, char** argv) {
 	std::vector<unsigned int> zAxisIndices{ 2 };
 	Mesh zAxisMesh = Mesh(zAxisPoints, zAxisIndices, &defaultTexture);
 	Model zAxisModel(&zAxisMesh);
-	GameObject zAxis(&zAxisModel, &flatShader, Transform(), Transform(), GL_LINES);
+	GameObject zAxis(&zAxisModel, &flatShader, Transform(), Transform(), glm::vec3(0), GL_LINES);
 	allGameObjects.push_back(zAxis);
 
 	Texture crateTexture("container.jpg");
@@ -239,33 +241,62 @@ int main(int argc, char** argv) {
 	allEmitters.push_back(lightA);*/
 
 	Emitter lightBSun(Light(
-		glm::vec3(0.1f),
-		glm::vec3(5.f),
-		glm::vec3(1.0f),
-		glm::vec4(1.0f, 1.f, 1.f, 0.0f)
+		glm::vec3(0.2f * 3.5f),
+		glm::vec3(0.2f * 5.f),
+		glm::vec3(0.2f * 1.0f),
+		glm::vec4(1.0f, 1.f, 1.f, 0.0f),
+		glm::vec3(0.7f, 0.03f, 0.012f)
 	));
 	Mesh lightBMesh = Mesh(boxVertexData, boxData.indices, boxData.sizeI, &crateTexture, lightBSun);
 	Model lightBModel(&lightBMesh);
-	GameObject lightB(&lightBModel, &flatShader, Transform(glm::vec3(35.2f, 10.0f, 2.0f), glm::vec3(2.3f)));
+	GameObject lightB(&lightBModel, &flatShader, Transform(glm::vec3(0.f, 10.0f, 2.0f), glm::vec3(2.3f)));
 	allGameObjects.push_back(lightB);
 	allEmitters.push_back(lightB);
 
-	// Terrain
-	TerrainGenerator gen = TerrainGenerator(
-		200,
-		200,
-		0.2f,
-		&ourShader, 
-		&defaultTexture,
+	// Chunk
+	float chunkDist = 25.f;
+	float terrainResolution = 1.f;
+	float grassResolution = 4.f;
+	Chunk firstChunk(
+		glm::vec2(0.f, 0.f),
+		chunkDist,
+		terrainResolution,
+		grassResolution,
+		&ourShader,
 		&defaultTexture
 	);
-	GameObject terrain = gen.GetGameObject();
-	allGameObjects.push_back(terrain);
+	firstChunk.LoadChunk(&allGameObjects, &grassShader);
 
-	// Grass
-	GrassGenerator grass = GrassGenerator(200, 200, 0.08f, 0.2f, 1.0f, &defaultTexture);
-	GameObject grassObject = grass.GenerateModelMatrices(&gen, &grassShader);
-	allGameObjects.push_back(grassObject);
+	Chunk secondChunk(
+		glm::vec2(1.f, 1.f),
+		chunkDist,
+		terrainResolution,
+		grassResolution,
+		&ourShader,
+		&defaultTexture
+	);
+	secondChunk.LoadChunk(&allGameObjects, &grassShader);
+
+	Chunk cChunk(
+		glm::vec2(0.f, 1.f),
+		chunkDist,
+		terrainResolution,
+		grassResolution,
+		&ourShader,
+		&defaultTexture
+	);
+	cChunk.LoadChunk(&allGameObjects, &grassShader);
+
+	Chunk dChunk(
+		glm::vec2(1.f, 0.f),
+		chunkDist,
+		terrainResolution,
+		grassResolution,
+		&ourShader,
+		&defaultTexture
+	);
+	dChunk.LoadChunk(&allGameObjects, &grassShader);
+
 
 	std::cout << "Starting!" << std::endl;
 	while (!glfwWindowShouldClose(window)) {
@@ -285,15 +316,21 @@ int main(int argc, char** argv) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.updateCamera(allShaders);
+
 		// draws game objects
+		int count = 0;
 		for (int i = 0; i < allGameObjects.size(); i ++) {
 			// assuming shared shader and only one emmiter
-			allGameObjects[i].Draw(
-				allEmitters[0].GetEmitterLight(),
-				allEmitters[0].GetWorldPos()
-			);
+			if (camera.IsInFrustum(allGameObjects[i].center)) {
+				//std::cout << "rendering " << i << " index" << std::endl;
+				count++;
+				allGameObjects[i].Draw(
+					allEmitters[0].GetEmitterLight(),
+					allEmitters[0].GetWorldPos()
+				);
+			}
 		}
-
+		//std::cout << "rendering " << count << " objects" << std::endl;
 		// Swaps the front and back buffers. front buffer is the buffer 
 		// that is displayed, back buffer is the new frame being drawn 
 		// to in the meanwhile. They then swap to show the new frame.

@@ -30,6 +30,8 @@ const vec2 curveDir = vec2(sin(curveDirDegrees), cos(curveDirDegrees));
 
 const float sinWaveOffset = 0.9f;
 
+const float heightAmplitude = 10.0f;
+
 vec4 GetDownVec() {
     vec3 temp = aPos - vec3(0, 0.3f, 0);
     float curveLocalHeightCo = 5 * 0.02f * (temp.y * temp.y);
@@ -42,7 +44,7 @@ vec4 GetDownVec() {
     float windIntensity = 0.7f * (sinWaveOffset + sin(windFrequency * time + windStrength));
 
     float windGrassDirectionDot = 1.0f + 0.1f * abs(dot(tempWorldPos.xz, windDir));
-    float windWorldHeightCo = 1.0f + abs(translation.y);
+    float windWorldHeightCo = 1.0f + (translation.y + heightAmplitude) / heightAmplitude;
     float windLocalHeightCo = 5.0f * 0.015f * (temp.y * temp.y);
     float windYDisplacement = (-0.3f) * windWorldHeightCo * windLocalHeightCo * abs(windIntensity);
     vec4 windDisplacement = windGrassDirectionDot * windLocalHeightCo * windWorldHeightCo * vec4(windDir.x, windYDisplacement, windDir.y, 0.0f) * windIntensity;
@@ -62,7 +64,7 @@ void main()
     float windIntensity = 0.7f * (sinWaveOffset + sin(windFrequency * time + windStrength));
 
     float windGrassDirectionDot = 1.0f + 0.1f * abs(dot(worldPos.xz, windDir));
-    float windWorldHeightCo = 1.0f + abs(translation.y);
+    float windWorldHeightCo = 1.0f + (translation.y + heightAmplitude) / heightAmplitude;
     float windLocalHeightCo = 5.0f * 0.015f * (aPos.y * aPos.y);
     float windYDisplacement = (-0.3f) * windWorldHeightCo * windLocalHeightCo * abs(windIntensity);
     vec4 windDisplacement = windGrassDirectionDot * windLocalHeightCo * windWorldHeightCo * vec4(windDir.x, windYDisplacement, windDir.y, 0.0f) * windIntensity;
