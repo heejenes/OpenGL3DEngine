@@ -21,18 +21,18 @@ private:
 		return model;
 	}
 public:
-	Model* objModel;
+	Model objModel;
 	// world pos
 	Transform transform;
 	Transform localOffset;
 	glm::vec3 center;
-	Shader* shader;
+	Shader* shader = nullptr;
 	int drawType;
 	bool isInstanced;
 	int instanceWidth, instanceHeight;
 	GameObject(
-		Model* _objModel,
-		Shader* _shader,
+		Model _objModel = Model(0),
+		Shader* _shader = nullptr,
 		Transform _transform = Transform(),
 		Transform _localOffset = Transform(),
 		glm::vec3 _center = glm::vec3(0),
@@ -42,8 +42,10 @@ public:
 		int _instanceHeight = 0
 	) {
 		objModel = _objModel;
-		for (Mesh* mesh : objModel->meshes) {
-			mesh->LoadVertexBuffers();
+		if (objModel.meshes.size() != 0) {
+			for (Mesh* mesh : objModel.meshes) {
+				mesh->LoadVertexBuffers();
+			}
 		}
 		shader = _shader;
 		transform = _transform;
@@ -60,6 +62,23 @@ public:
 		instanceHeight = _instanceHeight;
 	}
 
+	GameObject(const GameObject &_go) {
+		objModel = _go.objModel;
+		shader = _go.shader;
+		transform = _go.transform;
+		localOffset = _go.localOffset;
+		if (_go.center == glm::vec3(0)) {
+			center = transform.pos;
+		}
+		else {
+			center = _go.center;
+		}
+		drawType = _go.drawType;
+		isInstanced = _go.isInstanced;
+		instanceWidth = _go.instanceWidth;
+		instanceHeight = _go.instanceHeight;
+	}
+
 	void operator= (GameObject other) {
 		objModel = other.objModel;
 		shader = other.shader;
@@ -72,10 +91,13 @@ public:
 			center = other.center;
 		}
 		drawType = other.drawType;
+		isInstanced = other.isInstanced;
+		instanceWidth = other.instanceWidth;
+		instanceHeight = other.instanceHeight;
 	}
 
 	Light GetEmitterLight() {
-		for (Mesh* mesh : objModel->meshes) {
+		for (Mesh* mesh : objModel.meshes) {
 			return (mesh->emitter.light);
 		}
 	}
@@ -86,7 +108,7 @@ public:
 	}
 	void Draw(Light light, glm::vec3 emitterPos) {
 		shader->use();
-		for (Mesh* mesh : objModel->meshes) {
+		for (Mesh* mesh : objModel.meshes) {
 			for (int i = 0; i < mesh->textures.size(); i ++) {
 				glActiveTexture(GL_TEXTURE0 + i);
 				std::string name = "ourTexture";

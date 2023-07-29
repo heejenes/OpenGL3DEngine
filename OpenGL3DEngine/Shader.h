@@ -21,6 +21,7 @@ public:
     Shader(const char* vertexPath = "vshader.glsl", const char* fragmentPath = "fshader.glsl") {
         loadShader(vertexPath, fragmentPath);
     }
+
     void loadShader(const char* vertexPath, const char* fragmentPath) {
 
         // 1. retrieve the vertex/fragment source code from filePath

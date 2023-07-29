@@ -18,10 +18,11 @@ private:
 	Model grassModel;
 	float posVariance, sizeVariance, rotVariance;
 	int VAO;
-	glm::mat4* modelMatrices;
-	glm::vec3* windMap;
-	glm::vec3* translationMap;
-	glm::vec3* scaleMap;
+	glm::mat4* modelMatrices = nullptr;
+	glm::vec3* windMap = nullptr;
+	glm::vec3* translationMap = nullptr;
+	glm::vec3* scaleMap = nullptr;
+	Texture* texture = nullptr;
 
 	const siv::PerlinNoise::seed_type seed = 123456u;
 	const siv::PerlinNoise perlin{ seed };
@@ -36,65 +37,34 @@ public:
 		float _posV = 0.08f,
 		float _sizeV = 0.2f,
 		float _rotV = 1.0f,
-		Texture* texture = nullptr
+		Texture* _texture = nullptr
 	) {
-		xCount = _xCount;
-		zCount = _zCount;
-		posVariance = _posV;
-		sizeVariance = _sizeV;
-		rotVariance = _rotV;
-
-		std::vector<Vertex> grassVD;
-		GrassData grassData;
-
-		int ver = 0, norm = 0;
-		for (int i = 0; i < (int) (grassData.sizeV / 3); i++) {
-			ver = i * 3;
-			norm = i * 3;
-			grassVD.emplace_back(
-				Vertex(
-					grassData.vertices[ver],
-					grassData.vertices[ver + 1],
-					grassData.vertices[ver + 2],
-					0, 0, 0,
-					0, 0,
-					144.f / 255.f, 245.f / 255.f, 66.f / 255.f
-				)
-			);
-		}
-		int ind = 0;
-		int a, b, c;
-		for (int i = 0; i < (int)(grassData.sizeI / 3); i++) {
-			ind = i * 3;
-			a = grassData.indices[ind] * 3;
-			b = grassData.indices[ind + 1] * 3;
-			c = grassData.indices[ind + 2] * 3;
-
-			glm::vec3 aa(
-				grassData.vertices[a],
-				grassData.vertices[a + 1],
-				grassData.vertices[a + 2]
-			);
-			glm::vec3 bb(
-				grassData.vertices[b],
-				grassData.vertices[b + 1],
-				grassData.vertices[b + 2]
-			);
-			glm::vec3 cc(
-				grassData.vertices[c],
-				grassData.vertices[c + 1],
-				grassData.vertices[c + 2]
-			);
-			glm::vec3 cross = CrossProduct(
-				aa, 
-				bb, 
-				cc
-			);
-			grassVD[grassData.indices[ind]].Normal = cross;
-			grassVD[grassData.indices[ind + 1]].Normal = cross;
-			grassVD[grassData.indices[ind + 2]].Normal = cross;
-		}
-		grassMesh = Mesh(grassVD, grassData.indices, grassData.sizeI, texture);
+		SetVars(_xCount, _zCount, _posV, _sizeV, _rotV, _texture);
+		grassModel = Model(&grassMesh);
+	}
+	GrassGenerator(const GrassGenerator& other) {
+		SetVars(
+			other.xCount,
+			other.zCount,
+			other.posVariance,
+			other.sizeVariance,
+			other.rotVariance,
+			other.texture
+		);
+		grassMesh = other.grassMesh;
+		grassModel = Model(&grassMesh);
+	}
+	void operator= (GrassGenerator other) {
+		SetVars(
+			other.xCount, 
+			other.zCount, 
+			other.posVariance,
+			other.sizeVariance,
+			other.rotVariance,
+			other.texture
+		);
+		grassMesh = other.grassMesh;
+		grassModel = Model(&grassMesh);
 	}
 	void SetVars(
 		int _xCount = 3,
@@ -102,13 +72,14 @@ public:
 		float _posV = 0.08f,
 		float _sizeV = 0.2f,
 		float _rotV = 1.0f,
-		Texture* texture = nullptr
+		Texture* _texture = nullptr
 	) {
 		xCount = _xCount;
 		zCount = _zCount;
 		posVariance = _posV;
 		sizeVariance = _sizeV;
 		rotVariance = _rotV;
+		texture = _texture;
 
 		std::vector<Vertex> grassVD;
 		GrassData grassData;
@@ -164,7 +135,6 @@ public:
 	}
 
 	GameObject GenerateModelMatrices(TerrainGenerator* terrain, Shader* shader) {
-		grassModel = Model(&grassMesh);
 
 		int terX = terrain->xSize - 1;
 		int terZ = terrain->zSize - 1;
@@ -172,7 +142,7 @@ public:
 		float terDist = terrain->dist;
 
 		GameObject tempGrassModel(
-			&grassModel,
+			grassModel,
 			shader,
 			Transform(),
 			Transform(),
@@ -304,6 +274,9 @@ public:
 		return tempGrassModel;
 	}
 	~GrassGenerator() {
-		windMap; //TODO
+		delete[] windMap;
+		delete[] modelMatrices;
+		delete[] translationMap;
+		delete[] scaleMap;
 	}
 };

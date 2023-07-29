@@ -5,7 +5,7 @@ private:
 
 	bool usesTexture;
 	glm::vec2 TexCoords;
-	Texture* texture;
+	Texture* texture = nullptr;
 public:
 	Light light;
 	Material material;
@@ -15,13 +15,14 @@ public:
 	Emitter(
 		Light _light = Light(),
 		Material _material = Material(),
-		bool _usesTexture = false
+		bool _usesTexture = false,
+		Texture* _texture = nullptr
 	) {
 		light = _light;
 		material = Material();
 		usesTexture = _usesTexture;
 		TexCoords = glm::vec2(0);
-		texture = NULL;
+		texture = _texture;
 
 		if (light.diffuse != glm::vec3(0.f)) {
 			isEmitter = true;

@@ -29,7 +29,7 @@ public:
 	Mesh(
 		std::vector<Vertex> _vertexData, 
 		std::vector<unsigned int> _indices, 
-		Texture* _texture, 
+		Texture* _texture = nullptr,
 		Emitter _emitter = Emitter()
 	) {
 		std::copy(_vertexData.begin(), _vertexData.end(), back_inserter(vertexData));
@@ -52,12 +52,13 @@ public:
 		bool _isInstanced = false
 	) {
 		isInstanced = _isInstanced;
+		textures.push_back(_texture);
+		emitter = _emitter;
 		if (isInstanced) {
 			std::copy(_vertexData.begin(), _vertexData.end(), back_inserter(vertexDataInstance));
 			indicesInstance.clear();
 			indicesInstance.resize(indicesSize);
 			std::copy(_indices, _indices + indicesSize, indicesInstance.begin());
-			emitter = _emitter;
 			if (indicesInstance.size() == 1) {
 				usesIndex = false;
 			}
@@ -70,8 +71,6 @@ public:
 			indices.clear();
 			indices.resize(indicesSize);
 			std::copy(_indices, _indices + indicesSize, indices.begin());
-			textures.push_back(_texture);
-			emitter = _emitter;
 			if (indices.size() == 1) {
 				usesIndex = false;
 			}

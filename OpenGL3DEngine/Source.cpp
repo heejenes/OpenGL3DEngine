@@ -29,6 +29,7 @@
 #include "GrassData.h"
 
 #include "Chunk.h"
+#include "ChunkManager.h"
 
 const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
@@ -184,7 +185,7 @@ int main(int argc, char** argv) {
 	std::vector<unsigned int> xAxisIndices{ 2 };
 	Mesh xAxisMesh = Mesh(xAxisPoints, xAxisIndices, &defaultTexture);
 	Model xAxisModel(&xAxisMesh);
-	GameObject xAxis(&xAxisModel, &flatShader, Transform(), Transform(), glm::vec3(0), GL_LINES);
+	GameObject xAxis(xAxisModel, &flatShader, Transform(), Transform(), glm::vec3(0), GL_LINES);
 	allGameObjects.push_back(xAxis);
 
 	std::vector<Vertex> yAxisPoints;
@@ -193,7 +194,7 @@ int main(int argc, char** argv) {
 	std::vector<unsigned int> yAxisIndices{ 2 };
 	Mesh yAxisMesh = Mesh(yAxisPoints, yAxisIndices, &defaultTexture);
 	Model yAxisModel(&yAxisMesh);
-	GameObject yAxis(&yAxisModel, &flatShader, Transform(), Transform(), glm::vec3(0), GL_LINES);
+	GameObject yAxis(yAxisModel, &flatShader, Transform(), Transform(), glm::vec3(0), GL_LINES);
 	allGameObjects.push_back(yAxis);
 
 	std::vector<Vertex> zAxisPoints;
@@ -202,11 +203,11 @@ int main(int argc, char** argv) {
 	std::vector<unsigned int> zAxisIndices{ 2 };
 	Mesh zAxisMesh = Mesh(zAxisPoints, zAxisIndices, &defaultTexture);
 	Model zAxisModel(&zAxisMesh);
-	GameObject zAxis(&zAxisModel, &flatShader, Transform(), Transform(), glm::vec3(0), GL_LINES);
+	GameObject zAxis(zAxisModel, &flatShader, Transform(), Transform(), glm::vec3(0), GL_LINES);
 	allGameObjects.push_back(zAxis);
 
 	Texture crateTexture("container.jpg");
-	Mesh cubeMesh = Mesh(boxVertexData, boxData.indices, boxData.sizeI, &crateTexture);
+	/*Mesh cubeMesh = Mesh(boxVertexData, boxData.indices, boxData.sizeI, &crateTexture);
 	Model cubeModel(&cubeMesh);
 	std::vector<Transform> cubeTransforms {
 		Transform(glm::vec3(0.0f,  0.0f,  5.0f)),
@@ -223,9 +224,9 @@ int main(int argc, char** argv) {
 	};
 	for (int i = 0; i < cubeTransforms.size(); i++) {
 		allGameObjects.push_back(
-			GameObject(&cubeModel, &ourShader, cubeTransforms[i])
+			GameObject(cubeModel, &ourShader, cubeTransforms[i])
 		);
-	}
+	}*/
 
 
 	/*Emitter lightAEmitter(Light(
@@ -240,16 +241,21 @@ int main(int argc, char** argv) {
 	allGameObjects.push_back(lightA);
 	allEmitters.push_back(lightA);*/
 
-	Emitter lightBSun(Light(
-		glm::vec3(0.2f * 3.5f),
-		glm::vec3(0.2f * 5.f),
-		glm::vec3(0.2f * 1.0f),
-		glm::vec4(1.0f, 1.f, 1.f, 0.0f),
-		glm::vec3(0.7f, 0.03f, 0.012f)
-	));
+	Emitter lightBSun(
+		Light(
+			glm::vec3(0.2f * 3.5f),
+			glm::vec3(0.2f * 5.f),
+			glm::vec3(0.2f * 1.0f),
+			glm::vec4(1.0f, 1.f, 1.f, 0.0f),
+			glm::vec3(0.7f, 0.03f, 0.012f)
+		),
+		Material(),
+		false,
+		&crateTexture
+	);
 	Mesh lightBMesh = Mesh(boxVertexData, boxData.indices, boxData.sizeI, &crateTexture, lightBSun);
 	Model lightBModel(&lightBMesh);
-	GameObject lightB(&lightBModel, &flatShader, Transform(glm::vec3(0.f, 10.0f, 2.0f), glm::vec3(2.3f)));
+	GameObject lightB(lightBModel, &flatShader, Transform(glm::vec3(0.f, 10.0f, 2.0f), glm::vec3(2.3f)));
 	allGameObjects.push_back(lightB);
 	allEmitters.push_back(lightB);
 
@@ -257,46 +263,26 @@ int main(int argc, char** argv) {
 	float chunkDist = 25.f;
 	float terrainResolution = 1.f;
 	float grassResolution = 4.f;
-	Chunk firstChunk(
+	std::vector<glm::vec2> chunkPositions{
 		glm::vec2(0.f, 0.f),
-		chunkDist,
-		terrainResolution,
-		grassResolution,
-		&ourShader,
-		&defaultTexture
-	);
-	firstChunk.LoadChunk(&allGameObjects, &grassShader);
-
-	Chunk secondChunk(
 		glm::vec2(1.f, 1.f),
-		chunkDist,
-		terrainResolution,
-		grassResolution,
-		&ourShader,
-		&defaultTexture
-	);
-	secondChunk.LoadChunk(&allGameObjects, &grassShader);
-
-	Chunk cChunk(
 		glm::vec2(0.f, 1.f),
-		chunkDist,
-		terrainResolution,
-		grassResolution,
-		&ourShader,
-		&defaultTexture
-	);
-	cChunk.LoadChunk(&allGameObjects, &grassShader);
-
-	Chunk dChunk(
 		glm::vec2(1.f, 0.f),
+		glm::vec2(2.f, 2.f)
+	};
+	
+	std::cout << allGameObjects.size() << ", ";
+	ChunkManager chunkManager(
 		chunkDist,
 		terrainResolution,
 		grassResolution,
 		&ourShader,
-		&defaultTexture
+		&grassShader,
+		&defaultTexture,
+		&allGameObjects
 	);
-	dChunk.LoadChunk(&allGameObjects, &grassShader);
-
+	chunkManager.LoadNewChunks(chunkPositions);
+	std::cout << allGameObjects.size() << std::endl;
 
 	std::cout << "Starting!" << std::endl;
 	while (!glfwWindowShouldClose(window)) {
@@ -318,18 +304,27 @@ int main(int argc, char** argv) {
 		camera.updateCamera(allShaders);
 
 		// draws game objects
-		int count = 0;
 		for (int i = 0; i < allGameObjects.size(); i ++) {
 			// assuming shared shader and only one emmiter
 			if (camera.IsInFrustum(allGameObjects[i].center)) {
 				//std::cout << "rendering " << i << " index" << std::endl;
-				count++;
 				allGameObjects[i].Draw(
 					allEmitters[0].GetEmitterLight(),
 					allEmitters[0].GetWorldPos()
 				);
 			}
 		}
+		for (int i = 0; i < chunkManager.chunks.size(); i++) {
+			chunkManager.chunks[i].terrainObject.Draw(
+				allEmitters[0].GetEmitterLight(), 
+				allEmitters[0].GetWorldPos()
+			);
+			chunkManager.chunks[i].grassObject.Draw(
+				allEmitters[0].GetEmitterLight(),
+				allEmitters[0].GetWorldPos()
+			);
+		}
+
 		//std::cout << "rendering " << count << " objects" << std::endl;
 		// Swaps the front and back buffers. front buffer is the buffer 
 		// that is displayed, back buffer is the new frame being drawn 

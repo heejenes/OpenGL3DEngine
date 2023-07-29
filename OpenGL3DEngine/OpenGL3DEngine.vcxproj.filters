@@ -119,6 +119,9 @@
     <ClInclude Include="Chunk.h">
       <Filter>Header Files\TerrainGenerator</Filter>
     </ClInclude>
+    <ClInclude Include="ChunkManager.h">
+      <Filter>Header Files\TerrainGenerator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vshader.glsl">

@@ -86,18 +86,37 @@ public:
 		Texture* _waterTex = nullptr,
 		Texture* _landTex = nullptr
 	) {
-		xSize = _x;
-		zSize = _z;
-		dist = _dist;
-		chunkOffset = offset;
-		shader = _shader;
-		waterTex = _waterTex;
-		landTex = _landTex;
-		center = glm::vec3(((float)_x * _dist) * offset.x, 0, ((float)_z * _dist) * offset.y);
-		globalTransform = Transform();
-		localTransform = Transform();
-
+		SetVars(_x, _z, _dist, offset, _shader, _waterTex, _landTex);
 		model = Model(1);
+		GenerateLandMesh();
+	}
+	TerrainGenerator(const TerrainGenerator& other) {
+		SetVars(
+			other.xSize,
+			other.zSize,
+			other.dist,
+			other.chunkOffset,
+			other.shader,
+			other.waterTex,
+			other.landTex
+		);
+		landMesh = other.landMesh;
+		model = Model(1);
+		model.meshes[0] = &landMesh;
+	}
+	void operator= (TerrainGenerator other) {
+		SetVars(
+			other.xSize,
+			other.zSize,
+			other.dist,
+			other.chunkOffset,
+			other.shader,
+			other.waterTex,
+			other.landTex
+		);
+		landMesh = other.landMesh;
+		model = Model(1);
+		model.meshes[0] = &landMesh;
 	}
 	void SetVars(
 		int _x = 3,
@@ -116,6 +135,9 @@ public:
 		shader = _shader;
 		waterTex = _waterTex;
 		landTex = _landTex;
+		UpdateTexture();
+		globalTransform = Transform();
+		localTransform = Transform();
 	}
 	float NoiseMap(float a, float b) {
 		return perlin.normalizedOctave2D((a + chunkOffset.x * ((float)xSize - 1.f)) * scale, (b + chunkOffset.y * ((float)zSize - 1.f)) * scale, 2) * amplitude;
@@ -125,16 +147,20 @@ public:
 
 		model.meshes[0] = &landMesh;
 	}
+	void UpdateTexture() {
+		if (model.meshes.size() == 1 && model.meshes[0]->textures.size() == 1) {
+			model.meshes[0]->textures[0] = landTex;
+		}
+	}
 	void GenerateWaterMesh() {
 		waterMesh = GenerateFlatMesh(waterTex, false, 0.2f);
 
-		model.meshes[1] = &waterMesh;
+		//model.meshes[1] = &waterMesh;
 	}
 	GameObject GetGameObject() {
-		GenerateLandMesh();
 		//GenerateWaterMesh();
 		return GameObject(
-			&model,
+			model,
 			shader,
 			globalTransform, 
 			localTransform,
