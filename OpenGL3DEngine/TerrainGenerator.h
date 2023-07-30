@@ -18,7 +18,7 @@ private:
 	const siv::PerlinNoise::seed_type seed = 123456u;
 	const siv::PerlinNoise perlin{ seed };
 
-	Mesh GenerateFlatMesh(Texture* tex, bool noiseOn, float opacity) {
+	void GenerateFlatMesh(Texture* tex, bool noiseOn, float opacity) {
 		std::vector<Vertex> vertexData;
 		std::vector<unsigned int> indices;
 		float x = 0.0f, y = 0.0f, z = 0.0f;
@@ -69,8 +69,7 @@ private:
 			}
 		}
 
-		Mesh newMesh(vertexData, indices, tex);
-		return newMesh;
+		landMesh = Mesh(vertexData, indices, tex);
 	}
 public:
 	int xSize, zSize;
@@ -88,7 +87,7 @@ public:
 	) {
 		SetVars(_x, _z, _dist, offset, _shader, _waterTex, _landTex);
 		model = Model(1);
-		GenerateLandMesh();
+		model.meshes[0] = &landMesh;
 	}
 	TerrainGenerator(const TerrainGenerator& other) {
 		SetVars(
@@ -136,26 +135,17 @@ public:
 		waterTex = _waterTex;
 		landTex = _landTex;
 		UpdateTexture();
+		GenerateFlatMesh(landTex, true, 1.0f);
 		globalTransform = Transform();
 		localTransform = Transform();
 	}
 	float NoiseMap(float a, float b) {
 		return perlin.normalizedOctave2D((a + chunkOffset.x * ((float)xSize - 1.f)) * scale, (b + chunkOffset.y * ((float)zSize - 1.f)) * scale, 2) * amplitude;
 	}
-	void GenerateLandMesh() {
-		landMesh = GenerateFlatMesh(landTex, true, 1.0f);
-
-		model.meshes[0] = &landMesh;
-	}
 	void UpdateTexture() {
 		if (model.meshes.size() == 1 && model.meshes[0]->textures.size() == 1) {
 			model.meshes[0]->textures[0] = landTex;
 		}
-	}
-	void GenerateWaterMesh() {
-		waterMesh = GenerateFlatMesh(waterTex, false, 0.2f);
-
-		//model.meshes[1] = &waterMesh;
 	}
 	GameObject GetGameObject() {
 		//GenerateWaterMesh();

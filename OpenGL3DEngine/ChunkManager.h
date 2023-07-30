@@ -8,7 +8,6 @@ private:
 	Shader* terrainShader = nullptr;
 	Shader* grassShader = nullptr;
 	Texture* texture = nullptr;
-	std::vector<GameObject>* allGO = nullptr;
 public:
 	std::vector<Chunk> chunks;
 	ChunkManager(
@@ -17,8 +16,7 @@ public:
 		float _grassResolution,
 		Shader* _terrainShader,
 		Shader* _grassShader,
-		Texture* _texture,
-		std::vector<GameObject>* _allGO
+		Texture* _texture
 	) {
 		chunkDist = _chunkDist;
 		terrainResolution = _terrainResolution;
@@ -26,7 +24,6 @@ public:
 		terrainShader = _terrainShader;
 		grassShader = _grassShader;
 		texture = _texture;
-		allGO = _allGO;
 	}
 	void LoadNewChunks(std::vector<glm::vec2> chunkPositions) {
 		for (int i = 0; i < chunkPositions.size(); i++) {
@@ -39,7 +36,6 @@ public:
 				grassShader,
 				texture
 			));
-			std::cout << "aa" << std::endl;
 		}
 	}
 };

@@ -246,7 +246,7 @@ int main(int argc, char** argv) {
 			glm::vec3(0.2f * 3.5f),
 			glm::vec3(0.2f * 5.f),
 			glm::vec3(0.2f * 1.0f),
-			glm::vec4(1.0f, 1.f, 1.f, 0.0f),
+			glm::vec4(1.0f, 1.f, 1.f, 1.0f),
 			glm::vec3(0.7f, 0.03f, 0.012f)
 		),
 		Material(),
@@ -263,26 +263,24 @@ int main(int argc, char** argv) {
 	float chunkDist = 25.f;
 	float terrainResolution = 1.f;
 	float grassResolution = 4.f;
-	std::vector<glm::vec2> chunkPositions{
-		glm::vec2(0.f, 0.f),
-		glm::vec2(1.f, 1.f),
-		glm::vec2(0.f, 1.f),
-		glm::vec2(1.f, 0.f),
-		glm::vec2(2.f, 2.f)
-	};
-	
-	std::cout << allGameObjects.size() << ", ";
+	std::vector<glm::vec2> chunkPositions;
+	for (int i = -5; i < 5; i++) {
+		for (int j = -5; j < 5; j++) {
+			chunkPositions.push_back(
+				glm::vec2((float)i, (float)j)
+			);
+		}
+	}
+
 	ChunkManager chunkManager(
 		chunkDist,
 		terrainResolution,
 		grassResolution,
 		&ourShader,
 		&grassShader,
-		&defaultTexture,
-		&allGameObjects
+		&defaultTexture
 	);
 	chunkManager.LoadNewChunks(chunkPositions);
-	std::cout << allGameObjects.size() << std::endl;
 
 	std::cout << "Starting!" << std::endl;
 	while (!glfwWindowShouldClose(window)) {
@@ -314,25 +312,29 @@ int main(int argc, char** argv) {
 				);
 			}
 		}
+		int count = 0;
 		for (int i = 0; i < chunkManager.chunks.size(); i++) {
-			chunkManager.chunks[i].terrainObject.Draw(
-				allEmitters[0].GetEmitterLight(), 
-				allEmitters[0].GetWorldPos()
-			);
-			chunkManager.chunks[i].grassObject.Draw(
-				allEmitters[0].GetEmitterLight(),
-				allEmitters[0].GetWorldPos()
-			);
+			if (camera.IsInFrustum(chunkManager.chunks[i].grassObject.center)) {
+				count++;
+				chunkManager.chunks[i].terrainObject.Draw(
+					allEmitters[0].GetEmitterLight(),
+					allEmitters[0].GetWorldPos()
+				);
+				chunkManager.chunks[i].grassObject.Draw(
+					allEmitters[0].GetEmitterLight(),
+					allEmitters[0].GetWorldPos()
+				);
+			}
 		}
 
-		//std::cout << "rendering " << count << " objects" << std::endl;
+		std::cout << "rendering " << count << " grassChunks. fps: " << frameRate << std::endl;
+		// 
 		// Swaps the front and back buffers. front buffer is the buffer 
 		// that is displayed, back buffer is the new frame being drawn 
 		// to in the meanwhile. They then swap to show the new frame.
 		glfwSwapBuffers(window);
 		// listens for events (events trigger callbacks)
 		glfwPollEvents();
-
 	}
 
 	glfwTerminate();

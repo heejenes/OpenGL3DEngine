@@ -13,6 +13,7 @@ protected:
 	// in GL_ELEMENT_ARRAY_BUFFER instead which holds the vertex of the corresponding
 	// index
 	unsigned int EBO = 0;
+	bool assigned = false;
 public:
 	std::vector<Vertex> vertexData;
 	std::vector<unsigned int> indices;
@@ -95,7 +96,7 @@ public:
 		else {
 			usesIndex = true;
 		}
-
+		LoadVertexBuffers();
 	}
 	unsigned int getEBO() {
 		return EBO;
@@ -106,11 +107,22 @@ public:
 	unsigned int getVAO() {
 		return VAO;
 	}
+	unsigned int* getEBOAd() {
+		return &EBO;
+	}
+	unsigned int* getVBOAd() {
+		return &VBO;
+	}
+	unsigned int* getVAOAd() {
+		return &VAO;
+	}
 	~Mesh() {
-		glDeleteVertexArrays(1, &VAO);
-		glDeleteBuffers(1, &VBO);
-		if (usesIndex) {
-			glDeleteBuffers(1, &EBO);
+		if (assigned) {
+			glDeleteVertexArrays(1, &VAO);
+			glDeleteBuffers(1, &VBO);
+			if (usesIndex) {
+				glDeleteBuffers(1, &EBO);
+			}
 		}
 		vertexData.clear();
 		indices.clear();
@@ -131,16 +143,46 @@ public:
 		else {
 			usesIndex = true;
 		}
-		VAO = _mesh.getVAO();
-		EBO = _mesh.getEBO();
-		VBO = _mesh.getVBO();
+		if (assigned) {
+			glDeleteVertexArrays(1, &VAO);
+			glDeleteBuffers(1, &VBO);
+			if (usesIndex) {
+				glDeleteBuffers(1, &EBO);
+			}
+		}
+		LoadVertexBuffers();
+	}
+	Mesh(const Mesh& _mesh) {
+		vertexData.clear();
+		indices.clear();
+		textures.clear();
+		std::copy(_mesh.vertexData.begin(), _mesh.vertexData.end(), back_inserter(vertexData));
+		std::copy(_mesh.indices.begin(), _mesh.indices.end(), back_inserter(indices));
+		std::copy(_mesh.textures.begin(), _mesh.textures.end(), back_inserter(textures));
+		emitter = _mesh.emitter;
+		isInstanced = _mesh.isInstanced;
+		if (indices.size() == 1) {
+			usesIndex = false;
+		}
+		else {
+			usesIndex = true;
+		}
+		if (assigned) {
+			glDeleteVertexArrays(1, &VAO);
+			glDeleteBuffers(1, &VBO);
+			if (usesIndex) {
+				glDeleteBuffers(1, &EBO);
+			}
+		}
+		LoadVertexBuffers();
 	}
 
 	void LoadVertexBuffers() {
 		if (isInstanced) {
 			glGenVertexArrays(1, &VAO);
-			glGenBuffers(1, &VBO);
 			glBindVertexArray(VAO);
+			glGenBuffers(1, &VBO);
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 			// for EBO
 			if (usesIndex) {
@@ -149,7 +191,6 @@ public:
 				glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesInstance.size() * sizeof(unsigned int), indicesInstance.data(), GL_STATIC_DRAW);
 			}
 
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 			// copy the vertexData to the buffer.
 			// 4th parameter takes how GPU should manage data
 			// OPTIONS:
@@ -221,5 +262,6 @@ public:
 
 			glBindVertexArray(0);
 		}
+		assigned = true;
 	}
 };

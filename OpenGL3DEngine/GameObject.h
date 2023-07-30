@@ -42,11 +42,6 @@ public:
 		int _instanceHeight = 0
 	) {
 		objModel = _objModel;
-		if (objModel.meshes.size() != 0) {
-			for (Mesh* mesh : objModel.meshes) {
-				mesh->LoadVertexBuffers();
-			}
-		}
 		shader = _shader;
 		transform = _transform;
 		localOffset = _localOffset;
@@ -107,13 +102,18 @@ public:
 		return glm::vec3(worldPos);
 	}
 	void Draw(Light light, glm::vec3 emitterPos) {
+
+		//std::cout << "START: " << glGetError() << std::endl;
+
 		shader->use();
+		//std::cout << "A: " << glGetError() << std::endl;
 		for (Mesh* mesh : objModel.meshes) {
 			for (int i = 0; i < mesh->textures.size(); i ++) {
 				glActiveTexture(GL_TEXTURE0 + i);
 				std::string name = "ourTexture";
 				glUniform1i(glGetUniformLocation(shader->ID, name.c_str()), i);
 				glBindTexture(GL_TEXTURE_2D, mesh->textures[i]->id);
+				//std::cout << "B: " << glGetError() << std::endl;
 			}
 
 			shader->setFloat("time", glfwGetTime());
@@ -137,8 +137,11 @@ public:
 			shader->setVec3("material.diffuse", mesh->emitter.material.diffuse);
 			shader->setVec3("material.specular", mesh->emitter.material.specular);
 			shader->setFloat("material.shininess", mesh->emitter.material.shininess);
+			//std::cout << "C: " << glGetError() << std::endl;
 
 			glBindVertexArray(mesh->getVAO());
+			//std::cout << "D: " << glGetError() << std::endl;
+
 			if (mesh->usesIndex) {
 				if (isInstanced) {
 					glDrawElementsInstanced(drawType, static_cast<unsigned int>(mesh->indices.size()), GL_UNSIGNED_INT, 0, instanceHeight * instanceWidth);
@@ -155,6 +158,7 @@ public:
 					glDrawArrays(drawType, 0, mesh->indices[0]);
 				}
 			}
+			//std::cout << "END: " << glGetError() << std::endl;
 		}
 	}
 };

@@ -9,8 +9,6 @@ private:
 	TerrainGenerator terrain;
 	glm::vec2 worldOffset;
 	float chunkWidth, terrainRes, grassRes;
-	std::vector<GameObject>* allGO = nullptr;
-	int allGOIndex = 0;
 public:
 	Shader* defaultShader = nullptr;
 	Shader* grassShader = nullptr;
@@ -22,8 +20,6 @@ public:
 		chunkWidth = _chunk.chunkWidth;
 		terrainRes = _chunk.terrainRes;
 		grassRes = _chunk.grassRes;
-		allGO = _chunk.allGO;
-		allGOIndex = _chunk.allGOIndex;
 		defaultShader = _chunk.defaultShader;
 		grassShader = _chunk.grassShader;
 		defaultTexture = _chunk.defaultTexture;
