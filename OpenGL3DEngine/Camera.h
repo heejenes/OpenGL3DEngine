@@ -58,10 +58,10 @@ public:
 		SE = glm::vec3(model * glm::vec4(-localCorner.x, -localCorner.y, 2.f, 1.f));
 		SW = glm::vec3(model * glm::vec4(localCorner.x, -localCorner.y, 2.f, 1.f));
 
-		N = glm::cross(NE, NW);
-		S = glm::cross(SW, SE);
-		W = glm::cross(NW, SW);
-		E = glm::cross(SE, NE);
+		N = glm::normalize(glm::cross(NE, NW));
+		S = glm::normalize(glm::cross(SW, SE));
+		W = glm::normalize(glm::cross(NW, SW));
+		E = glm::normalize(glm::cross(SE, NE));
 
 		for (Shader shader : allShaders) {
 			shader.use();
@@ -71,14 +71,26 @@ public:
 		}
 	}
 	bool IsInFrustum(glm::vec3 pos) {
-		glm::vec3 localPos = pos - cameraPos;
-		float margin = 0.f;
+		glm::vec3 localPos = glm::normalize(pos - cameraPos);
+		float dist = glm::distance(pos, cameraPos);
+
+		float closeRadius = 20.f;
+		// allow chunks around us
+		if (dist < closeRadius) {
+			return true;
+		}
+
+		float underMargin = 0.7f; // skinniest at 1.0, widest at -1.0
+		// allow chunks under us
+		if (glm::dot(localPos, glm::vec3(0, -1, 0)) > underMargin) {
+			return true;
+		}
+
+		float margin = 0.5f;
 		// if inside
 		if (glm::dot(localPos, N) < margin && glm::dot(localPos, S) < margin
-			&& glm::dot(localPos, N) < margin && glm::dot(localPos, S) < margin) {
-			return true;
-			float dist = glm::dot(localPos, localPos);
-			if (dist > near - margin && dist < far + margin) {
+			&& glm::dot(localPos, W) < margin && glm::dot(localPos, E) < margin) {
+			if (dist > near && dist < far) {
 				return true;
 			}
 		}
@@ -127,6 +139,7 @@ public:
 	// processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
 	void ProcessKeyboard(Camera_Movement direction, float deltaTime)
 	{
+		float worldHeight = 50.f;
 		float velocity = MovementSpeed * deltaTime;
 		if (direction == FORWARD)
 			cameraPos += cameraForward * velocity;
@@ -137,7 +150,9 @@ public:
 		if (direction == RIGHT)
 			cameraPos += cameraRight * velocity;
 		if (direction == UP)
-			cameraPos += glm::vec3(0, 1.f, 0) * velocity;
+			if (cameraPos.y < worldHeight) {
+				cameraPos += glm::vec3(0, 1.f, 0) * velocity;
+			}
 		if (direction == DOWN)
 			cameraPos -= glm::vec3(0, 1.f, 0) * velocity;
 	}

@@ -33,6 +33,8 @@
 
 const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
+const float near = 0.1f;
+const float far = 100.f;
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -41,7 +43,9 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 Camera camera = Camera(
 	glm::vec3(0, 5, 0),
-	(float)SCR_WIDTH / (float)SCR_HEIGHT
+	(float)SCR_WIDTH / (float)SCR_HEIGHT,
+	near,
+	far
 );
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
@@ -133,7 +137,7 @@ int main(int argc, char** argv) {
 	glEnable(GL_DEPTH_TEST);
 
 	// Set up backface culling
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
@@ -260,17 +264,10 @@ int main(int argc, char** argv) {
 	allEmitters.push_back(lightB);
 
 	// Chunk
-	float chunkDist = 25.f;
+	float chunkDist = 15.f;
 	float terrainResolution = 1.f;
 	float grassResolution = 4.f;
 	std::vector<glm::vec2> chunkPositions;
-	for (int i = -5; i < 5; i++) {
-		for (int j = -5; j < 5; j++) {
-			chunkPositions.push_back(
-				glm::vec2((float)i, (float)j)
-			);
-		}
-	}
 
 	ChunkManager chunkManager(
 		chunkDist,
@@ -280,7 +277,6 @@ int main(int argc, char** argv) {
 		&grassShader,
 		&defaultTexture
 	);
-	chunkManager.LoadNewChunks(chunkPositions);
 
 	std::cout << "Starting!" << std::endl;
 	while (!glfwWindowShouldClose(window)) {
@@ -292,14 +288,22 @@ int main(int argc, char** argv) {
 
 		// input handling
 		processInput(window, &camera);
+		camera.updateCamera(allShaders);
+		glm::vec2 curChunkPos((int)(camera.cameraPos.x / chunkDist), (int)(camera.cameraPos.z / chunkDist));
+		for (int i = -2; i < 2; i++) {
+			for (int j = -2; j < 2; j++) {
+				chunkPositions.push_back(
+					glm::vec2(i + curChunkPos.x, j + curChunkPos.y)
+				);
+			}
+		}
+		chunkManager.LoadNewChunks(chunkPositions);
 
 		// rendering
 		// 
 		// clears specified buffer with color specified in glClearColor(). 
 		// (options: GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_STENCIL_BUFFER_BIT)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		camera.updateCamera(allShaders);
 
 		// draws game objects
 		for (int i = 0; i < allGameObjects.size(); i ++) {
