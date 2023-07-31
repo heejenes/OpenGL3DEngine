@@ -278,6 +278,8 @@ int main(int argc, char** argv) {
 		&defaultTexture
 	);
 
+	glm::vec2 pastChunkPos((int)(camera.cameraPos.x / chunkDist), (int)(camera.cameraPos.z / chunkDist));
+
 	std::cout << "Starting!" << std::endl;
 	while (!glfwWindowShouldClose(window)) {
 
@@ -290,15 +292,17 @@ int main(int argc, char** argv) {
 		processInput(window, &camera);
 		camera.updateCamera(allShaders);
 		glm::vec2 curChunkPos((int)(camera.cameraPos.x / chunkDist), (int)(camera.cameraPos.z / chunkDist));
-		for (int i = -2; i < 2; i++) {
-			for (int j = -2; j < 2; j++) {
-				chunkPositions.push_back(
-					glm::vec2(i + curChunkPos.x, j + curChunkPos.y)
-				);
+		if (glm::abs(curChunkPos.x - pastChunkPos.x) > 0 || glm::abs(curChunkPos.y - pastChunkPos.y) > 0) {
+			pastChunkPos = curChunkPos;
+			for (int i = -2; i < 2; i++) {
+				for (int j = -2; j < 2; j++) {
+					chunkPositions.push_back(
+						glm::vec2(i + curChunkPos.x, j + curChunkPos.y)
+					);
+				}
 			}
+			chunkManager.LoadNewChunks(chunkPositions);
 		}
-		chunkManager.LoadNewChunks(chunkPositions);
-
 		// rendering
 		// 
 		// clears specified buffer with color specified in glClearColor(). 
