@@ -84,6 +84,8 @@ public:
 		std::vector<Vertex> grassVD;
 		GrassData grassData;
 
+		glm::vec3 grassColor(52.f, 87.f, 67.f);
+
 		int ver = 0, norm = 0;
 		for (int i = 0; i < (int)(grassData.sizeV / 3); i++) {
 			ver = i * 3;
@@ -95,7 +97,8 @@ public:
 					grassData.vertices[ver + 2],
 					0, 0, 0,
 					0, 0,
-					144.f / 255.f, 245.f / 255.f, 66.f / 255.f
+					grassColor.x / 255.f, grassColor.y / 255.f, grassColor.z / 255.f
+					//144.f / 255.f, 245.f / 255.f, 66.f / 255.f
 				)
 			);
 		}

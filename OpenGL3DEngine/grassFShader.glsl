@@ -52,7 +52,7 @@ void main()
     /////////////////////////////////////
 
     // specular
-    float specularStrength = 0.1f;
+    float specularStrength = 0.2f;
     vec3 viewDir = normalize(viewPos - worldPos.xyz);
     vec3 reflectDir = reflect(-lightDir3, N);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);

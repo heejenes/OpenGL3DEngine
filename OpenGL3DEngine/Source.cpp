@@ -141,7 +141,9 @@ int main(int argc, char** argv) {
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
-	glm::vec3 ambientColor(168.f/255.f, 221.f/255.f, 224.f/255.f);
+	glm::vec3 ambientColor = glm::vec3(107, 255, 211) / 255.f;
+	glm::vec3 diffuseColor = glm::vec3(59, 203, 255) / 255.f;
+	glm::vec3 specularColor = glm::vec3(38, 248, 255) / 255.f;
 
 
 	glClearColor(ambientColor[0], ambientColor[1], ambientColor[2], 0.f);
@@ -335,8 +337,8 @@ int main(int argc, char** argv) {
 	Emitter lightBSun(
 		Light(
 			ambientColor,
-			glm::vec3(0.2f * 5.f),
-			glm::vec3(0.2f * 1.0f),
+			diffuseColor,
+			specularColor,
 			glm::vec4(0.0f, 1.f, 2.f, 1.0f),
 			glm::vec3(0.7f, 0.03f, 0.012f)
 		),
