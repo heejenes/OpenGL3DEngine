@@ -99,7 +99,7 @@ public:
 	bool IsClose(glm::vec3 pos) {
 		float dist = glm::distance(pos, cameraPos);
 
-		float closeRadius = far * 0.7f;
+		float closeRadius = far * 0.5f;
 		// allow chunks around us
 		if (dist < closeRadius) {
 			return true;
