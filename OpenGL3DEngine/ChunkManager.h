@@ -4,7 +4,7 @@
 
 class ChunkManager {
 private:
-	const int chunkWidthLimit = 10;
+	const int chunkWidthLimit = 25;
 	float chunkDist, terrainResolution, grassResolution;
 	std::vector<std::vector<bool>> loadedChunkPositions; // x is first index, y is second index
 	Shader* terrainShader = nullptr;

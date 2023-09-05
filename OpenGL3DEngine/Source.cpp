@@ -34,7 +34,7 @@
 const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
 const float near = 0.1f;
-const float far = 150.f;
+const float far = 250.f;
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -254,12 +254,12 @@ int main(int argc, char** argv) {
 	}
 	std::vector<std::string> faces
 	{
-		"skybox/right.jpg",
-		"skybox/left.jpg",
-		"skybox/bottom.jpg",
-		"skybox/top.jpg",
-		"skybox/front.jpg",
-		"skybox/back.jpg"
+		"skybox/Cold Night__Cam_2_Left+X.png",
+		"skybox/Cold Night__Cam_3_Right-X.png",
+		"skybox/Cold Night__Cam_5_Down-Y.png",
+		"skybox/Cold Night__Cam_4_Up+Y.png",
+		"skybox/Cold Night__Cam_0_Front+Z.png",
+		"skybox/Cold Night__Cam_1_Back-Z.png"
 	};
 	CubeMap skyBox(faces);
 	skyBox.loadCubeMap(faces);
@@ -337,7 +337,7 @@ int main(int argc, char** argv) {
 			ambientColor,
 			glm::vec3(0.2f * 5.f),
 			glm::vec3(0.2f * 1.0f),
-			glm::vec4(1.0f, 1.f, 1.f, 1.0f),
+			glm::vec4(0.0f, 1.f, 2.f, 1.0f),
 			glm::vec3(0.7f, 0.03f, 0.012f)
 		),
 		Material(),
@@ -346,7 +346,7 @@ int main(int argc, char** argv) {
 	);
 	Mesh lightBMesh = Mesh(boxVertexData, boxData.indices, boxData.sizeI, &crateTexture, lightBSun);
 	Model lightBModel(&lightBMesh);
-	GameObject lightB(lightBModel, &flatShader, Transform(glm::vec3(0.f, 10.0f, 2.0f), glm::vec3(2.3f)));
+	GameObject lightB(lightBModel, &flatShader, Transform(glm::vec3(0.f, 10.0f, 20.0f), glm::vec3(2.3f)));
 	allEmitters.push_back(lightB);
 	
 	// Chunk
@@ -374,7 +374,7 @@ int main(int argc, char** argv) {
 
 	std::cout << "Starting!" << std::endl;
 
-	int renderCount = 100;
+	int renderCount = 20;
 	while (!glfwWindowShouldClose(window)) {
 
 		float currentFrame = glfwGetTime();
@@ -423,10 +423,12 @@ int main(int argc, char** argv) {
 					allEmitters[0].GetEmitterLight(),
 					allEmitters[0].GetWorldPos()
 				);
-				chunkManager.chunks[i].grassObject.Draw(
-					allEmitters[0].GetEmitterLight(),
-					allEmitters[0].GetWorldPos()
-				);
+				if (camera.IsClose(chunkManager.chunks[i].grassObject.center)) {
+					chunkManager.chunks[i].grassObject.Draw(
+						allEmitters[0].GetEmitterLight(),
+						allEmitters[0].GetWorldPos()
+					);
+				}
 			}
 		}
 

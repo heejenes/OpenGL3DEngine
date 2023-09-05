@@ -181,10 +181,8 @@ public:
 				shader->setVec3("material.diffuse", mesh->emitter.material.diffuse);
 				shader->setVec3("material.specular", mesh->emitter.material.specular);
 				shader->setFloat("material.shininess", mesh->emitter.material.shininess);
-				//std::cout << "C: " << glGetError() << std::endl;
 
 				glBindVertexArray(mesh->getVAO());
-				//std::cout << "D: " << glGetError() << std::endl;
 
 				if (mesh->usesIndex) {
 					if (isInstanced) {

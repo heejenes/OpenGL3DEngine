@@ -96,6 +96,16 @@ public:
 		}
 		return false;
 	}
+	bool IsClose(glm::vec3 pos) {
+		float dist = glm::distance(pos, cameraPos);
+
+		float closeRadius = far * 0.7f;
+		// allow chunks around us
+		if (dist < closeRadius) {
+			return true;
+		}
+		return false;
+	}
 	void updateCameraVectors() {
 		// calculate the new Front vector
 		glm::vec3 front;

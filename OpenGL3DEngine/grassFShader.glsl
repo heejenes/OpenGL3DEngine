@@ -73,7 +73,11 @@ void main()
     }
     ///////////////////////////////////////
 
+    // fog
+    float viewDist = distance(viewPos, worldPos.xyz);
+    float fogCo = min(0.9, max(0.1f, 1.f - 0.007f * viewDist)); 
+
     vec3 lightResult =  ambient + diffuse + specular;
     vec3 finalColor = objectColor * min(max(0.2f, localPos.y - 0.5f), 0.8f);
-    FragColor = vec4(lightResult, 1.0f) * vec4(finalColor, opacity);
+    FragColor = vec4(lightResult * fogCo, 1.0f) * vec4(finalColor, opacity);
 }

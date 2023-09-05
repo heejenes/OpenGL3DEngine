@@ -172,6 +172,8 @@
     <None Include="fshader.glsl" />
     <None Include="grassFShader.glsl" />
     <None Include="grassVShader.glsl" />
+    <None Include="skyBoxFShader.glsl" />
+    <None Include="skyBoxVShader.glsl" />
     <None Include="vshader.glsl" />
   </ItemGroup>
   <ItemGroup>
