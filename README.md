@@ -3,4 +3,4 @@
 Experimental 3d engine made with OpenGL that I used to render a very very large field of grass blowing in the wind.
 
 VIDEO DEMO:
-https://youtu.be/I_EwUnXz0rI?si=6XgTICVtFB7aHnbP
+https://youtu.be/ajOxgA49QB8?si=SipAh-Mga4zKOfHz
