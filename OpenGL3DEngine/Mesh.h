@@ -43,6 +43,7 @@ public:
 		else {
 			usesIndex = true;
 		}
+		LoadVertexBuffers();
 	}
 	Mesh(
 		std::vector<Vertex> _vertexData,
@@ -79,6 +80,7 @@ public:
 				usesIndex = true;
 			}
 		}
+		LoadVertexBuffers();
 	}
 	Mesh(
 		std::vector<Vertex> _vertexData = std::vector<Vertex>{},

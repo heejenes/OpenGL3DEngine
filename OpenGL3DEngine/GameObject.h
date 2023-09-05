@@ -22,6 +22,8 @@ private:
 	}
 public:
 	Model objModel;
+	CubeMap* cubeMap = nullptr;
+	bool usesCubeMap = false;
 	// world pos
 	Transform transform;
 	Transform localOffset;
@@ -56,8 +58,36 @@ public:
 		instanceWidth = _instanceWidth;
 		instanceHeight = _instanceHeight;
 	}
+	GameObject(
+		CubeMap* _cubeMap,
+		Model _objModel = Model(0),
+		Shader* _shader = nullptr,
+		Transform _transform = Transform(),
+		Transform _localOffset = Transform(),
+		glm::vec3 _center = glm::vec3(0),
+		int _drawType = GL_TRIANGLES
+	) {
+		cubeMap = _cubeMap;
+		usesCubeMap = true;
+		objModel = _objModel;
+		shader = _shader;
+		transform = _transform;
+		localOffset = _localOffset;
+		if (_center == glm::vec3(0)) {
+			center = _transform.pos;
+		}
+		else {
+			center = _center;
+		}
+		drawType = _drawType;
+		isInstanced = false;
+		instanceWidth = 0;
+		instanceHeight = 0;
+	}
 
 	GameObject(const GameObject &_go) {
+		cubeMap = _go.cubeMap;
+		usesCubeMap = _go.usesCubeMap;
 		objModel = _go.objModel;
 		shader = _go.shader;
 		transform = _go.transform;
@@ -75,6 +105,8 @@ public:
 	}
 
 	void operator= (GameObject other) {
+		cubeMap = other.cubeMap;
+		usesCubeMap = other.usesCubeMap;
 		objModel = other.objModel;
 		shader = other.shader;
 		transform = other.transform;
@@ -104,61 +136,73 @@ public:
 	void Draw(Light light, glm::vec3 emitterPos) {
 
 		//std::cout << "START: " << glGetError() << std::endl;
+		if (usesCubeMap) {
+			glDepthFunc(GL_LEQUAL);
+			shader->use();
+			shader->setInt("skybox", 0);
+			glBindVertexArray(objModel.meshes[0]->getVAO());
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap->id);
+			glDrawArrays(drawType, 0, objModel.meshes[0]->indices[0]);
+			glBindVertexArray(0);
+			glDepthFunc(GL_LESS);
+		}
+		else {
+			shader->use();
+			//std::cout << "A: " << glGetError() << std::endl;
+			for (Mesh* mesh : objModel.meshes) {
 
-		shader->use();
-		//std::cout << "A: " << glGetError() << std::endl;
-		for (Mesh* mesh : objModel.meshes) {
-			for (int i = 0; i < mesh->textures.size(); i ++) {
-				glActiveTexture(GL_TEXTURE0 + i);
-				std::string name = "ourTexture";
-				glUniform1i(glGetUniformLocation(shader->ID, name.c_str()), i);
-				glBindTexture(GL_TEXTURE_2D, mesh->textures[i]->id);
-				//std::cout << "B: " << glGetError() << std::endl;
-			}
+				for (int i = 0; i < mesh->textures.size(); i++) {
+					glActiveTexture(GL_TEXTURE0 + i);
+					std::string name = "ourTexture";
+					glUniform1i(glGetUniformLocation(shader->ID, name.c_str()), i);
+					glBindTexture(GL_TEXTURE_2D, mesh->textures[i]->id);
+					//std::cout << "B: " << glGetError() << std::endl;
+				}
 
-			shader->setFloat("time", glfwGetTime());
+				shader->setFloat("time", glfwGetTime());
 
-			genAndAssignModelMatrix();
-			
-			shader->setVec3("light.ambient", light.ambient);
-			shader->setVec3("light.diffuse", light.diffuse);
-			shader->setVec3("light.specular", light.specular);
-			if (light.lightDir.w == 0) {
-				shader->setVec3("light.position", emitterPos);
-				shader->setFloat("light.constant", light.coefficients.x);
-				shader->setFloat("light.linear", light.coefficients.y);
-				shader->setFloat("light.quadratic", light.coefficients.z);
-			}
-			else {
-				shader->setVec4("light.lightDir", light.lightDir);
-			}
+				genAndAssignModelMatrix();
 
-			shader->setVec3("material.ambient", mesh->emitter.material.ambient);
-			shader->setVec3("material.diffuse", mesh->emitter.material.diffuse);
-			shader->setVec3("material.specular", mesh->emitter.material.specular);
-			shader->setFloat("material.shininess", mesh->emitter.material.shininess);
-			//std::cout << "C: " << glGetError() << std::endl;
-
-			glBindVertexArray(mesh->getVAO());
-			//std::cout << "D: " << glGetError() << std::endl;
-
-			if (mesh->usesIndex) {
-				if (isInstanced) {
-					glDrawElementsInstanced(drawType, static_cast<unsigned int>(mesh->indices.size()), GL_UNSIGNED_INT, 0, instanceHeight * instanceWidth);
+				shader->setVec3("light.ambient", light.ambient);
+				shader->setVec3("light.diffuse", light.diffuse);
+				shader->setVec3("light.specular", light.specular);
+				if (light.lightDir.w == 0) {
+					shader->setVec3("light.position", emitterPos);
+					shader->setFloat("light.constant", light.coefficients.x);
+					shader->setFloat("light.linear", light.coefficients.y);
+					shader->setFloat("light.quadratic", light.coefficients.z);
 				}
 				else {
-					glDrawElements(drawType, static_cast<unsigned int>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
+					shader->setVec4("light.lightDir", light.lightDir);
 				}
-			}
-			else {
-				if (isInstanced) {
-					glDrawArraysInstanced(drawType, 0, mesh->indices[0], instanceHeight * instanceWidth);
+
+				shader->setVec3("material.ambient", mesh->emitter.material.ambient);
+				shader->setVec3("material.diffuse", mesh->emitter.material.diffuse);
+				shader->setVec3("material.specular", mesh->emitter.material.specular);
+				shader->setFloat("material.shininess", mesh->emitter.material.shininess);
+				//std::cout << "C: " << glGetError() << std::endl;
+
+				glBindVertexArray(mesh->getVAO());
+				//std::cout << "D: " << glGetError() << std::endl;
+
+				if (mesh->usesIndex) {
+					if (isInstanced) {
+						glDrawElementsInstanced(drawType, static_cast<unsigned int>(mesh->indices.size()), GL_UNSIGNED_INT, 0, instanceHeight * instanceWidth);
+					}
+					else {
+						glDrawElements(drawType, static_cast<unsigned int>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
+					}
 				}
 				else {
-					glDrawArrays(drawType, 0, mesh->indices[0]);
+					if (isInstanced) {
+						glDrawArraysInstanced(drawType, 0, mesh->indices[0], instanceHeight * instanceWidth);
+					}
+					else {
+						glDrawArrays(drawType, 0, mesh->indices[0]);
+					}
 				}
 			}
-			//std::cout << "END: " << glGetError() << std::endl;
 		}
 	}
 };

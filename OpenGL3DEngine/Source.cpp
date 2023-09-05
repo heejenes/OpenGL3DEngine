@@ -34,7 +34,7 @@
 const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
 const float near = 0.1f;
-const float far = 100.f;
+const float far = 150.f;
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -141,7 +141,10 @@ int main(int argc, char** argv) {
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
-	glClearColor(0.3f, 0.3f, 0.6f, 0.f);
+	glm::vec3 ambientColor(168.f/255.f, 221.f/255.f, 224.f/255.f);
+
+
+	glClearColor(ambientColor[0], ambientColor[1], ambientColor[2], 0.f);
 
 	srand(glfwGetTime());
 	
@@ -155,6 +158,8 @@ int main(int argc, char** argv) {
 	allShaders.push_back(flatShader);
 	Shader grassShader = Shader("grassVShader.glsl", "grassFShader.glsl");
 	allShaders.push_back(grassShader);
+	Shader skyBoxShader = Shader("skyBoxVShader.glsl", "skyBoxFShader.glsl");
+	allShaders.push_back(skyBoxShader);
 
 	Texture defaultTexture = Texture();
 
@@ -181,6 +186,88 @@ int main(int argc, char** argv) {
 			)
 		);
 	}
+
+
+	// SKY BOX
+	float skyboxVertices[] = {
+		// positions          
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
+	};
+	std::vector<Vertex> skyBoxVertexData;
+	int veraa = 0;
+	for (int i = 0; i < 36; i++) {
+		veraa = i * 3;
+		norm = i * 3;
+		tex = i * 2;
+		skyBoxVertexData.emplace_back(
+			Vertex(
+				skyboxVertices[veraa],
+				skyboxVertices[veraa + 1],
+				skyboxVertices[veraa + 2],
+				0,
+				0,
+				0,
+				0,
+				0
+			)
+		);
+	}
+	std::vector<std::string> faces
+	{
+		"skybox/right.jpg",
+		"skybox/left.jpg",
+		"skybox/bottom.jpg",
+		"skybox/top.jpg",
+		"skybox/front.jpg",
+		"skybox/back.jpg"
+	};
+	CubeMap skyBox(faces);
+	skyBox.loadCubeMap(faces);
+	std::vector<unsigned int> skyBoxIndices{ 36 };
+	Mesh skyBoxMesh = Mesh(skyBoxVertexData, skyBoxIndices, &defaultTexture);
+	Model skyBoxModel(&skyBoxMesh);
+	GameObject skyBoxObj(&skyBox, skyBoxModel, &skyBoxShader);
+
 
 	// world axis
 	std::vector<Vertex> xAxisPoints;
@@ -247,7 +334,7 @@ int main(int argc, char** argv) {
 
 	Emitter lightBSun(
 		Light(
-			glm::vec3(0.2f * 3.5f),
+			ambientColor,
 			glm::vec3(0.2f * 5.f),
 			glm::vec3(0.2f * 1.0f),
 			glm::vec4(1.0f, 1.f, 1.f, 1.0f),
@@ -260,9 +347,8 @@ int main(int argc, char** argv) {
 	Mesh lightBMesh = Mesh(boxVertexData, boxData.indices, boxData.sizeI, &crateTexture, lightBSun);
 	Model lightBModel(&lightBMesh);
 	GameObject lightB(lightBModel, &flatShader, Transform(glm::vec3(0.f, 10.0f, 2.0f), glm::vec3(2.3f)));
-	allGameObjects.push_back(lightB);
 	allEmitters.push_back(lightB);
-
+	
 	// Chunk
 	float chunkDist = 15.f;
 	float terrainResolution = 1.f;
@@ -278,9 +364,17 @@ int main(int argc, char** argv) {
 		&defaultTexture
 	);
 
+
+	chunkPositions.push_back(
+		glm::vec2(0, 0)
+	);
+	chunkManager.LoadNewChunks(chunkPositions);
+
 	glm::vec2 pastChunkPos((int)(camera.cameraPos.x / chunkDist), (int)(camera.cameraPos.z / chunkDist));
 
 	std::cout << "Starting!" << std::endl;
+
+	int renderCount = 100;
 	while (!glfwWindowShouldClose(window)) {
 
 		float currentFrame = glfwGetTime();
@@ -294,8 +388,8 @@ int main(int argc, char** argv) {
 		glm::vec2 curChunkPos((int)(camera.cameraPos.x / chunkDist), (int)(camera.cameraPos.z / chunkDist));
 		if (glm::abs(curChunkPos.x - pastChunkPos.x) > 0 || glm::abs(curChunkPos.y - pastChunkPos.y) > 0) {
 			pastChunkPos = curChunkPos;
-			for (int i = -2; i < 2; i++) {
-				for (int j = -2; j < 2; j++) {
+			for (int i = -renderCount; i < renderCount; i++) {
+				for (int j = -renderCount; j < renderCount; j++) {
 					chunkPositions.push_back(
 						glm::vec2(i + curChunkPos.x, j + curChunkPos.y)
 					);
@@ -308,6 +402,7 @@ int main(int argc, char** argv) {
 		// clears specified buffer with color specified in glClearColor(). 
 		// (options: GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_STENCIL_BUFFER_BIT)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
 		// draws game objects
 		for (int i = 0; i < allGameObjects.size(); i ++) {
@@ -335,7 +430,12 @@ int main(int argc, char** argv) {
 			}
 		}
 
-		std::cout << "rendering " << count << " grassChunks. fps: " << frameRate << std::endl;
+		skyBoxObj.Draw(
+			allEmitters[0].GetEmitterLight(),
+			allEmitters[0].GetWorldPos()
+		);
+
+		//std::cout << "rendering " << count << " grassChunks. fps: " << frameRate << std::endl;
 		// 
 		// Swaps the front and back buffers. front buffer is the buffer 
 		// that is displayed, back buffer is the new frame being drawn 

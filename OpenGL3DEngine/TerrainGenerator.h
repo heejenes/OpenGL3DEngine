@@ -26,7 +26,7 @@ private:
 		float s = 0.0f, t = 0.0f;
 		float r = 0.0f, g = 0.0f, b = 0.0f;
 
-		r = 5.f / 255.f, g = 36.f / 255.f, b = 7.f / 255.f;
+		r = 29.f / 255.f, g = 33.f / 255.f, b = 22.f / 255.f;
 
 		float centerXOffset = ((float)xSize - 1.f) * dist * (-0.5f) + chunkOffset.x * ((float)xSize - 1.f) * dist;
 		float centerZOffset = ((float)zSize - 1.f) * dist * (-0.5f) + chunkOffset.y * ((float)zSize - 1.f) * dist;
