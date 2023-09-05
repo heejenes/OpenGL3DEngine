@@ -1,5 +1,5 @@
 # OpenGL3DEngine Grassy Field
-<img src="grassgif.gif" alt="grassgif" height="400"/>
+<img src="grassgif.gif" alt="grassgif" height="500"/>
 Experimental 3d engine made with OpenGL that I used to render a very very large field of grass blowing in the wind.
 
 VIDEO DEMO:
