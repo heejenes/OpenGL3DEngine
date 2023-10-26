@@ -3,7 +3,7 @@
 Experimental 3d engine made with OpenGL that I used to render a very very large field of grass blowing in the wind.
 
 Optimizations:
-1. used instanced rendering which allows me to make just one rendering call for entire chunks of grass. This could be optimized even further as I split the world up into chunks for the purpose of load time. Each chunk now makes its own instanced rendering call to render all of its grass which is a lot less efficicent than having a single instanced rendering call for all of the grass at once.
+1. Used instanced rendering which allows me to make just one rendering call for entire chunks of grass. This could be optimized even further as I split the world up into chunks for the purpose of improving load time. Each chunk now makes its own instanced rendering call to render all of its grass which is a lot less efficicent than having a single instanced rendering call for all of the grass at once.
 2. I added CPU side frustum culling where chunks outside of the camera's view do not make rendering calls at all. The graphics card already does culling by itself but this occurs in the rasterization state which is after the vertex shader so its a lot faster to cull out non-visible grass before it even makes it to the GPU.
 3. Added level of detail changes where at a certain distance, grass is no longer rendered by the terrain is still rendered to improve performance.
 
