@@ -1,6 +1,6 @@
 # OpenGL3DEngine Grassy Field
 <img src="grassgif.gif" alt="grassgif" height="500"/>
-Experimental 3d engine made with OpenGL that I used to render a very very large field of grass blowing in the wind.
+Experimental 3d engine made with OpenGL that I used to render a very very large field of grass blowing in the wind. It was initially inspired by a talk on the grass in Ghost of Tsushima as well as just for the purposes of learning more about how computer graphics work. 
 
 Optimizations:
 1. Used instanced rendering which allows me to make just one rendering call for entire chunks of grass. This could be optimized even further as I split the world up into chunks for the purpose of improving load time. Each chunk now makes its own instanced rendering call to render all of its grass which is a lot less efficicent than having a single instanced rendering call for all of the grass at once.
